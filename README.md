@@ -14,16 +14,13 @@ backend :
 3. Dockerを起動
 - $ docker compose up -d 
 
-4. airをインストール(再ビルド・再起動) 
-- $ go install github.com/cosmtrek/air@latest 
+4. サーバーを起動
+- $ go run cmd/main.go 
 
-5. サーバーを起動
-- $ air
-
-6. 動作確認
+5. 動作確認
 - $ curl -X POST http://localhost:8080/game
 
-7. Dockerを停止
+6. Dockerを停止
 - $ docker compose down
 
 

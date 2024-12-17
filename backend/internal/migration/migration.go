@@ -23,6 +23,6 @@ func init() {
 		slog.Error("Database migration failed", "error", err)
 		return
 	}
-	slog.Info("Database migration completed successfully", "entity", "User")
+	slog.Info("Database migration completed successfully")
 
 }
