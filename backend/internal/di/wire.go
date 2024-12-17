@@ -18,10 +18,13 @@ func New() *router.Root {
 		database.New,
 		repository.NewGameRepository,
 		repository.NewPlayerRepository,
+		repository.NewAnswerRepository,
 		service.NewGameService,
 		service.NewPlayerService,
+		service.NewAnswerService,
 		handler.NewGameHandler,
 		handler.NewPlayerHandler,
+		handler.NewAnswerHandler,
 		router.New,
 	)
 	return &router.Root{}

@@ -24,6 +24,9 @@ func New() *router.Root {
 	iPlayerRepository := repository.NewPlayerRepository(db)
 	iPlayerService := service.NewPlayerService(iPlayerRepository)
 	iPlayerHandler := handler.NewPlayerHandler(iPlayerService)
-	root := router.New(iGameHandler, iPlayerHandler)
+	iAnswerRepository := repository.NewAnswerRepository(db)
+	iAnswerService := service.NewAnswerService(iAnswerRepository)
+	iAnswerHandler := handler.NewAnswerHandler(iAnswerService)
+	root := router.New(iGameHandler, iPlayerHandler, iAnswerHandler)
 	return root
 }
