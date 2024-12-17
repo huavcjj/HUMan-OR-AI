@@ -8,7 +8,7 @@ import (
 type Player struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
 	GameID    uint      `json:"game_id" gorm:"not null"`
-	Name      string    `json:"name" gorm:"unique"`
+	Name      string    `json:"name" gorm:"unique;not null"`
 	Score     uint      `json:"score" `
 	CreatedAt time.Time `json:"created_at"`
 }

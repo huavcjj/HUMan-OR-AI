@@ -18,7 +18,14 @@ backend :
 - $ go run cmd/main.go 
 
 5. 動作確認
-- $ curl -X POST http://localhost:8080/game
+- $ curl -X POST http://localhost:8080/game/1
+
+- $ curl -X POST http://localhost:8080/player/1 \
+     -H "Content-Type: application/json" \
+     -d '{"name": "Player1"}'
+
+- $ curl -X GET http://localhost:8080/player/1
+
 
 6. Dockerを停止
 - $ docker compose down

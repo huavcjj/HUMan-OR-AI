@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"Bot-or-Not/internal/app/service"
 
@@ -21,9 +22,23 @@ func NewGameHandler(gs service.IGameService) IGameHandler {
 }
 
 func (h *gameHandler) StartGame(c echo.Context) error {
-	newGame, err := h.gs.CreateGame(c.Request().Context())
+
+	idParam := c.Param("id")
+	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err)
+		return c.JSON(http.StatusBadRequest, err)
 	}
+
+	existingGame, _ := h.gs.GetGameByID(c.Request().Context(), uint(id))
+
+	if existingGame != nil {
+		return c.JSON(http.StatusOK, existingGame)
+	}
+
+	newGame, err := h.gs.CreateGame(c.Request().Context(), uint(id))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
 	return c.JSON(http.StatusOK, newGame)
 }

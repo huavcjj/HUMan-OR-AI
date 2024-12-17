@@ -13,9 +13,9 @@ type Root struct {
 func New(gameHandler handler.IGameHandler, playerHandler handler.IPlayerHandler) *Root {
 	e := echo.New()
 
-	e.POST("/game", gameHandler.StartGame)
+	e.POST("/game/:id", gameHandler.StartGame)
 
-	e.POST("/player", playerHandler.CreatePlayer)
+	e.POST("/player/:gameID", playerHandler.CreatePlayer)
 	e.GET("/player/:gameID", playerHandler.GetPlayersByGameID)
 
 	return &Root{

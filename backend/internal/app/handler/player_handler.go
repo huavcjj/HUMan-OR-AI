@@ -27,6 +27,14 @@ func (h *playerHandler) CreatePlayer(c echo.Context) error {
 	if err := c.Bind(&playerReq); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
+
+	gameIDStr := c.Param("gameID")
+	gameID, err := strconv.ParseUint(gameIDStr, 10, 32)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	playerReq.GameID = uint(gameID)
+
 	newPlayer, err := h.ps.CreatePlayer(c.Request().Context(), &playerReq)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
