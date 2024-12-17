@@ -20,3 +20,12 @@ func NewGameFromEntity(e *entity.Game) *Game {
 		CreatedAt: e.CreatedAt,
 	}
 }
+
+func (g *Game) ToEntity() *entity.Game {
+	return &entity.Game{
+		ID:        g.ID,
+		Topic:     g.Topic,
+		AIAnswer:  g.AIAnswer,
+		CreatedAt: g.CreatedAt,
+	}
+}
