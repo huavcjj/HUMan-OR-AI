@@ -10,7 +10,7 @@ type Root struct {
 	Echo *echo.Echo
 }
 
-func New(gameHandler handler.IGameHandler, playerHandler handler.IPlayerHandler, answerHandler handler.IAnswerHandler) *Root {
+func New(gameHandler handler.IGameHandler, playerHandler handler.IPlayerHandler) *Root {
 	e := echo.New()
 
 	e.POST("/game/:id", gameHandler.StartGame)
@@ -19,7 +19,7 @@ func New(gameHandler handler.IGameHandler, playerHandler handler.IPlayerHandler,
 	game.POST("/player", playerHandler.CreatePlayer)
 	game.GET("/player", playerHandler.GetPlayersByGameID)
 
-	e.POST("/game/:gameID/:playerID/answer", answerHandler.CreateAnswer)
+	game.POST("/answer", gameHandler.VerifyAIAnswer)
 
 	return &Root{
 		Echo: e,
