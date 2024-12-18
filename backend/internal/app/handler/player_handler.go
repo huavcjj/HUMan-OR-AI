@@ -39,7 +39,7 @@ func (h *playerHandler) CreatePlayer(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, newPlayer)
+	return c.JSON(http.StatusOK, newPlayer.ID)
 }
 
 func (h *playerHandler) GetPlayersByGameID(c echo.Context) error {

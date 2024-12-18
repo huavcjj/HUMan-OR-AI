@@ -2,33 +2,35 @@ package dto
 
 import (
 	"Bot-or-Not/internal/domain/entity"
-	"time"
 )
 
 type Player struct {
-	ID        uint      `json:"id" gorm:"primaryKey"`
-	GameID    uint      `json:"game_id" gorm:"not null"`
-	Name      string    `json:"name" gorm:"unique;not null"`
-	Score     uint      `json:"score" `
-	CreatedAt time.Time `json:"created_at"`
+	ID     uint   `json:"id"`
+	GameID uint   `json:"game_id"`
+	Name   string `json:"name"`
+	Answer string `json:"answer"`
+	// Score     uint      `json:"score"`
+	// CreatedAt time.Time `json:"created_at"`
 }
 
 func NewPlayerFromEntity(e *entity.Player) *Player {
 	return &Player{
-		ID:        e.ID,
-		GameID:    e.GameID,
-		Name:      e.Name,
-		Score:     e.Score,
-		CreatedAt: e.CreatedAt,
+		ID:     e.ID,
+		GameID: e.GameID,
+		Name:   e.Name,
+		Answer: e.Answer,
+		// Score:     e.Score,
+		// CreatedAt: e.CreatedAt,
 	}
 }
 
 func (p *Player) ToEntity() *entity.Player {
 	return &entity.Player{
-		ID:        p.ID,
-		GameID:    p.GameID,
-		Name:      p.Name,
-		Score:     p.Score,
-		CreatedAt: p.CreatedAt,
+		ID:     p.ID,
+		GameID: p.GameID,
+		Name:   p.Name,
+		Answer: p.Answer,
+		// Score:     p.Score,
+		// CreatedAt: p.CreatedAt,
 	}
 }
