@@ -2,10 +2,9 @@
 ハッカソン技育CAMP2024 Vol.19
 
 forntend:
-1. Node.jsのインストール
-   
-https://nodejs.org/en/download/prebuilt-installer
-このURLからver20.18.1(LTS)を選択しインストール(wizardでは全てNextをクリックしてok)
+1. Node.jsのインストール 
+   https://nodejs.org/en/download/prebuilt-installer
+   このURLからver20.18.1(LTS)を選択しインストール(wizardでは全てNextをクリックしてok)
 
 
 2. インストールの確認
