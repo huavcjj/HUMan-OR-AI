@@ -3,6 +3,7 @@
 
 forntend:
 1. Node.jsのインストール
+   
 https://nodejs.org/en/download/prebuilt-installer
 このURLからver20.18.1(LTS)を選択しインストール(wizardでは全てNextをクリックしてok)
 
@@ -11,6 +12,7 @@ https://nodejs.org/en/download/prebuilt-installer
    バージョンが見れる事を確認してください。
 
 3.　ディレクトリの移動
+
 　　cd コマンドでfrontendディレクトリに移動してください。
 
 4. プロジェクト立ち上げ
