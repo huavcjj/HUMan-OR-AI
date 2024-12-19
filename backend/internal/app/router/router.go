@@ -10,16 +10,15 @@ type Root struct {
 	Echo *echo.Echo
 }
 
-func New(gameHandler handler.IGameHandler, playerHandler handler.IPlayerHandler) *Root {
+func New(playerHandler handler.IPlayerHandler) *Root {
 	e := echo.New()
 
-	e.POST("/game/:id", gameHandler.StartGame)
-
-	game := e.Group("/game/:gameID")
-	game.POST("/player", playerHandler.CreatePlayer)
-	game.GET("/player", playerHandler.GetPlayersByGameID)
-
-	game.POST("/answer", gameHandler.VerifyAIAnswer)
+	e.POST("/game/start", playerHandler.StartNewGame)                //request:passcode; response:id
+	e.POST("/player/topic", playerHandler.SubmitPlayerTopic)         //request:id, topic
+	e.GET("/opponent/topic", playerHandler.FetchOpponentTopic)       //request:id passcode; response:topic
+	e.POST("/opponent/answer", playerHandler.SubmitAnswerToOpponent) //request:id, passcode, answer
+	e.GET("/answers", playerHandler.FetchAnswersForComparison)       //request:id
+	e.POST("/answer/is-player", playerHandler.CompareAnswerIsPlayer) //request:id,select_answer
 
 	return &Root{
 		Echo: e,

@@ -28,6 +28,6 @@ func LoadEnv() {
 	DBPassword = os.Getenv("DB_PASSWORD")
 	DBName = os.Getenv("DB_NAME")
 
-	APIKey = os.Getenv("OPENAI_KEY")
+	APIKey = os.Getenv("OPENAI_API_KEY")
 
 }

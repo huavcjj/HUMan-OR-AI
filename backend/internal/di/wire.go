@@ -16,11 +16,8 @@ import (
 func New() *router.Root {
 	wire.Build(
 		database.New,
-		repository.NewGameRepository,
 		repository.NewPlayerRepository,
-		service.NewGameService,
 		service.NewPlayerService,
-		handler.NewGameHandler,
 		handler.NewPlayerHandler,
 		router.New,
 	)

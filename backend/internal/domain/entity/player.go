@@ -1,20 +1,18 @@
 package entity
 
-import "time"
-
 type Player struct {
-	ID        uint      `json:"id" gorm:"primaryKey"`
-	GameID    uint      `json:"game_id" gorm:"not null"`
-	Name      string    `json:"name" gorm:"unique;not null"`
-	Answer    string    `json:"answer" gorm:"not null"`
-	Score     uint      `json:"score"`
-	CreatedAt time.Time `json:"created_at"`
+	ID             uint   `json:"id" gorm:"primaryKey"`
+	Passcode       string `json:"passcode" gorm:"not null"`
+	Topic          string `json:"topic" gorm:"not null"`
+	AIAnswer       string `json:"ai_answer"`
+	Answer         string `json:"answer"`
+	OpponentAnswer string `json:"opponent_answer"`
+	SelectAnswer   string `json:"select_answer"`
 }
 
-func NewPlayer(gameID uint, name string, score uint) *Player {
+func NewPlayer(passcode, topic string) *Player {
 	return &Player{
-		GameID: gameID,
-		Name:   name,
-		Score:  score,
+		Passcode: passcode,
+		Topic:    topic,
 	}
 }

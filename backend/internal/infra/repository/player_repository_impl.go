@@ -30,17 +30,30 @@ func (r *playerRepository) GetPlayerByID(ctx context.Context, id uint) (*entity.
 	return &player, nil
 }
 
-func (r *playerRepository) GetPlayersByGameID(ctx context.Context, gameID uint) ([]entity.Player, error) {
-	var players []entity.Player
-	if err := r.db.WithContext(ctx).Where("game_id = ?", gameID).Find(&players).Error; err != nil {
+func (r *playerRepository) UpdatePlayer(ctx context.Context, player *entity.Player) (*entity.Player, error) {
+	if err := r.db.WithContext(ctx).Save(player).Error; err != nil {
 		return nil, err
 	}
-	return players, nil
+	return player, nil
 }
 
-func (r *playerRepository) UpdatePlayerScore(ctx context.Context, playerID uint, score int) error {
-	if err := r.db.WithContext(ctx).Model(&entity.Player{}).Where("id = ?", playerID).Update("score", score).Error; err != nil {
+func (r *playerRepository) DeletePlayerByID(ctx context.Context, id uint) error {
+	var player entity.Player
+
+	if err := r.db.WithContext(ctx).First(&player, id).Error; err != nil {
+		return err
+	}
+
+	if err := r.db.WithContext(ctx).Delete(&player).Error; err != nil {
 		return err
 	}
 	return nil
+}
+
+func (r *playerRepository) GetPlayersByPasscode(ctx context.Context, passcode string) ([]*entity.Player, error) {
+	var players []*entity.Player
+	if err := r.db.WithContext(ctx).Where("passcode = ?", passcode).Find(&players).Error; err != nil {
+		return nil, err
+	}
+	return players, nil
 }

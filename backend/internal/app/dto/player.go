@@ -5,32 +5,50 @@ import (
 )
 
 type Player struct {
-	ID     uint   `json:"id"`
-	GameID uint   `json:"game_id"`
-	Name   string `json:"name"`
-	Answer string `json:"answer"`
-	// Score     uint      `json:"score"`
-	// CreatedAt time.Time `json:"created_at"`
+	ID             uint   `json:"id" gorm:"primaryKey"`
+	Passcode       string `json:"passcode" gorm:"not null"`
+	Topic          string `json:"topic" gorm:"not null"`
+	AIAnswer       string `json:"ai_answer"`
+	Answer         string `json:"answer"`
+	OpponentAnswer string `json:"opponent_answer"`
+	SelectAnswer   string `json:"select_answer"`
 }
 
-func NewPlayerFromEntity(e *entity.Player) *Player {
+type AnswersResp struct {
+	AIAnswer       string `json:"ai_answer"`
+	OpponentAnswer string `json:"opponent_answer"`
+}
+
+func NewPlayer(passcode string) *Player {
 	return &Player{
-		ID:     e.ID,
-		GameID: e.GameID,
-		Name:   e.Name,
-		Answer: e.Answer,
-		// Score:     e.Score,
-		// CreatedAt: e.CreatedAt,
+		Passcode: passcode,
+	}
+}
+
+func NewTopic(topic string) *Player {
+	return &Player{
+		Topic: topic,
+	}
+}
+
+func NewPlayerFromEntity(player *entity.Player) *Player {
+	return &Player{
+		ID:             player.ID,
+		Passcode:       player.Passcode,
+		Topic:          player.Topic,
+		AIAnswer:       player.AIAnswer,
+		Answer:         player.Answer,
+		OpponentAnswer: player.OpponentAnswer,
 	}
 }
 
 func (p *Player) ToEntity() *entity.Player {
 	return &entity.Player{
-		ID:     p.ID,
-		GameID: p.GameID,
-		Name:   p.Name,
-		Answer: p.Answer,
-		// Score:     p.Score,
-		// CreatedAt: p.CreatedAt,
+		ID:             p.ID,
+		Passcode:       p.Passcode,
+		Topic:          p.Topic,
+		AIAnswer:       p.AIAnswer,
+		Answer:         p.Answer,
+		OpponentAnswer: p.OpponentAnswer,
 	}
 }

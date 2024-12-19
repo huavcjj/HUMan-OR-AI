@@ -19,7 +19,7 @@ func init() {
 		}
 	}()
 
-	if err := db.Conn().AutoMigrate(&entity.Game{}, &entity.Player{}); err != nil {
+	if err := db.Conn().AutoMigrate(&entity.Player{}); err != nil {
 		slog.Error("Database migration failed", "error", err)
 		return
 	}

@@ -3,6 +3,7 @@ package openai
 import (
 	"context"
 	"fmt"
+
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -15,6 +16,13 @@ func NewOpenAI(apiKey string) *OpenAI {
 	return &OpenAI{client: client}
 }
 
+func (o *OpenAI) GenerateAIAnswer(ctx context.Context, topic string) (string, error) {
+
+	//プレイヤーのお題内容を受け取り、お題に対してGPTで生成した回答を返す。
+	//未実装
+
+	return "GPTで生成した回答", nil
+}
 func (o *OpenAI) GenerateGameTopicAIAnswer(ctx context.Context) (string, string, error) {
 	// ①大喜利のお題を生成
 	topicPrompt := "あなたは創造的で面白い大喜利のお題を考えるAIです。人をクスッと笑わせるような新しい大喜利のお題を一つ考えてください。ただし、お題の内容だけ、返してください。"
