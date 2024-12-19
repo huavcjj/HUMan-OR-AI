@@ -4,6 +4,7 @@ import (
 	"Bot-or-Not/internal/app/dto"
 	"Bot-or-Not/internal/app/service"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -75,7 +76,12 @@ func (ph *playerHandler) FetchOpponentTopic(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	opponentPlayer, err := ph.ps.FindAvailableOpponentByPasscode(c.Request().Context(), uint(id), passcode)
+	decodedPasscode, err := url.QueryUnescape(passcode)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	opponentPlayer, err := ph.ps.FindAvailableOpponentByPasscode(c.Request().Context(), uint(id), decodedPasscode)
 	if opponentPlayer == nil || err != nil {
 		return c.JSON(http.StatusOK, err)
 	}
