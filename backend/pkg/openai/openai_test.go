@@ -10,11 +10,11 @@ import (
 
 func TestGenerateGameTopicAIAnswer(t *testing.T) {
 	// 相対パスで.envをロード
-    err := godotenv.Load("../../.env")
-    if err != nil {
-        t.Fatalf("Failed to load .env file: %v", err)
-    }
-	
+	err := godotenv.Load("../../.env")
+	if err != nil {
+		t.Fatalf("Failed to load .env file: %v", err)
+	}
+
 	apiKey := os.Getenv("OPENAI_API_KEY")
 	if apiKey == "" {
 		t.Fatal("OPENAI_API_KEY not set")
@@ -34,3 +34,5 @@ func TestGenerateGameTopicAIAnswer(t *testing.T) {
 	}
 	t.Logf("Odai: %s\nAnswer: %s\n", odai, answer)
 }
+
+//go test -v -run TestGenerateGameTopicAIAnswer -count=1
