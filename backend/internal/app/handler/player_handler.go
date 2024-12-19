@@ -41,7 +41,7 @@ func (ph *playerHandler) StartNewGame(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 
-	time.Sleep(10 * time.Second)
+	time.Sleep(5 * time.Second)
 
 	opponent, err := ph.ps.FindAvailableOpponentByPasscode(c.Request().Context(), newPlayer.ID, newPlayer.Passcode)
 	if opponent == nil || err != nil {
