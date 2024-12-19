@@ -16,8 +16,11 @@ https://nodejs.org/en/download/prebuilt-installer
 4. プロジェクト立ち上げ
 　　vscodeのターミナルで"npm run dev"を実行してください。
 　　無理だった場合、以下をそれぞれターミナルで実行し、再度"npm run dev"を実行してください。
+
 　　winget install Schniz.fnm
+
 　　fnm env --use-on-cd | Out-String | Invoke-Expression
+  
 　　fnm use --install-if-missing 20
 
 　　成功するとターミナルにlocalhost:3000のURLが発行されるのでクリックして開いてください。
