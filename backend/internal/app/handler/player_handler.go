@@ -4,6 +4,7 @@ import (
 	"Bot-or-Not/internal/app/dto"
 	"Bot-or-Not/internal/app/service"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -66,14 +67,15 @@ func (ph *playerHandler) SubmitPlayerTopic(c echo.Context) error {
 }
 
 func (ph *playerHandler) FetchOpponentTopic(c echo.Context) error {
-	var player dto.Player
-	if err := c.Bind(&player); err != nil {
+	idStr := c.QueryParam("id")
+	passcode := c.QueryParam("passcode")
+
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	id := player.ID
-	passcode := player.Passcode
 
-	opponentPlayer, err := ph.ps.FindAvailableOpponentByPasscode(c.Request().Context(), id, passcode)
+	opponentPlayer, err := ph.ps.FindAvailableOpponentByPasscode(c.Request().Context(), uint(id), passcode)
 	if opponentPlayer == nil || err != nil {
 		return c.JSON(http.StatusOK, err)
 	}
@@ -101,13 +103,14 @@ func (ph *playerHandler) SubmitAnswerToOpponent(c echo.Context) error {
 	return c.JSON(http.StatusOK, "回答を提出しました")
 }
 func (ph *playerHandler) FetchAnswersForComparison(c echo.Context) error {
-	var player dto.Player
-	if err := c.Bind(&player); err != nil {
+	idStr := c.QueryParam("id")
+
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	id := player.ID
 
-	newPlayer, err := ph.ps.GetPlayerByID(c.Request().Context(), id)
+	newPlayer, err := ph.ps.GetPlayerByID(c.Request().Context(), uint(id))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
