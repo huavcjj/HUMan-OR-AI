@@ -2,7 +2,7 @@ package openai
 
 import (
 	"context"
-
+	"fmt"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -16,51 +16,55 @@ func NewOpenAI(apiKey string) *OpenAI {
 }
 
 func (o *OpenAI) GenerateGameTopicAIAnswer(ctx context.Context) (string, string, error) {
-	//未実装
+	// ①大喜利のお題を生成
+	topicPrompt := "あなたは創造的で面白い大喜利のお題を考えるAIです。人をクスッと笑わせるような新しい大喜利のお題を一つ考えてください。ただし、お題の内容だけ、返してください。"
 
-	return "abc", "def", nil
-}
-
-//GPTに大喜利のお題を送り、回答を生成してもらう
-//引数：ゲームID,お題num,お題txt,
-//戻り値：生成した回答
-func (o *OpenAI) GetGPTResponse(ctx context.Context, gameID string,themaNum int,themaTxt string)(string,error){
-	//プロンプト作成
-	prompt :=fmt.Sprintf(
-		"以下は大喜利ゲームのお題です。\nお題: %s\nこのお題に対して人間に負けないくらい面白い回答を一つ考えてください。",
-		gameID, themaNum,themaTxt,
-	)
-
-	//ChatCompletion API呼び出し
-	resp, err:= o.client.CreateChatCompletion(
-		ctx,
-		openai.ChatCompletionRequest{
-			Model: openai.GPT3Dot5Turbo,//ここにモデル名
-			Messages: []openai.ChatCompletionMessage{
+	topicResp, err := o.client.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
+		Model: openai.GPT3Dot5Turbo, // 必要に応じてモデル選択(gpt-4でも可)
+		Messages: []openai.ChatCompletionMessage{
 			{
-				Role: openai.ChatMessageRoleSystem,
-				Content: "あなたは創造的でユーモアのある大喜利回答者です。短く面白い回答のみを返してください。",
-		
+				Role:    openai.ChatMessageRoleSystem,
+				Content: "あなたは優れた大喜利のお題を考え出すことができます。お題の内容だけを返します",
 			},
 			{
-				Role: openai.ChatMessageRoleUser,
-				Content: prompt,
-		
+				Role:    openai.ChatMessageRoleUser,
+				Content: topicPrompt,
 			},
 		},
-		Temperature: 0.7, // ユーモアや創造性を出したい場合は多少上げる
+		Temperature: 0.8,
+	})
+	if err != nil {
+		return "", "", fmt.Errorf("failed to get topic: %w", err)
+	}
+	if len(topicResp.Choices) == 0 {
+		return "", "", fmt.Errorf("no topic returned from GPT")
+	}
+	topic := topicResp.Choices[0].Message.Content
+
+	// ②生成されたお題に対する面白い回答を生成
+	answerPrompt := fmt.Sprintf("お題: %s\nこのお題に対して、面白い回答を一つ考えてください。", topic)
+
+	answerResp, err := o.client.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
+		Model: openai.GPT3Dot5Turbo,
+		Messages: []openai.ChatCompletionMessage{
+			{
+				Role:    openai.ChatMessageRoleSystem,
+				Content: "あなたはユーモアに富んだ大喜利回答者です。",
+			},
+			{
+				Role:    openai.ChatMessageRoleUser,
+				Content: answerPrompt,
+			},
 		},
-	)
-	if err!= nil{
-		return "","", fmt.Errorf("ChatCompletion API request failed: %w", err)
+		Temperature: 0.7,
+	})
+	if err != nil {
+		return "", "", fmt.Errorf("failed to get answer: %w", err)
 	}
-
-	if len(resp.Choices)==0{
-		return "","",fmt.Errorf("no response from GPT")
+	if len(answerResp.Choices) == 0 {
+		return "", "", fmt.Errorf("no answer returned from GPT")
 	}
+	answer := answerResp.Choices[0].Message.Content
 
-	answer :=resp.Choices[0].Message.Content
-	return answer, nil
-
-	
+	return topic, answer, nil
 }
