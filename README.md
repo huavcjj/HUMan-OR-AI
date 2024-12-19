@@ -7,12 +7,12 @@ forntend:
 https://nodejs.org/en/download/prebuilt-installer
 このURLからver20.18.1(LTS)を選択しインストール(wizardでは全てNextをクリックしてok)
 
+
 2. インストールの確認
    vscodeのターミナルを開き,"node -v" "npm -v"とそれぞれ入力し
    バージョンが見れる事を確認してください。
 
 3.　ディレクトリの移動
-
 　　cd コマンドでfrontendディレクトリに移動してください。
 
 4. プロジェクト立ち上げ
