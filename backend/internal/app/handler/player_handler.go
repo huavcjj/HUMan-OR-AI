@@ -18,6 +18,7 @@ type IPlayerHandler interface {
 	SubmitAnswerToOpponent(c echo.Context) error    // 相手のお題に対する回答を提出する
 	FetchAnswersForComparison(c echo.Context) error // AIの回答と相手の回答を取得する
 	CompareAnswerIsPlayer(c echo.Context) error     // 送信した回答がAIか人間かを判定する
+	EndGame(c echo.Context) error
 }
 
 type playerHandler struct {
@@ -151,4 +152,18 @@ func (ph *playerHandler) CompareAnswerIsPlayer(c echo.Context) error {
 		return c.JSON(http.StatusOK, "正解です")
 	}
 	return c.JSON(http.StatusOK, "不正解です")
+}
+
+func (ph *playerHandler) EndGame(c echo.Context) error {
+
+	var request struct {
+		ID uint `json:"id"`
+	}
+
+	if err := ph.ps.DeletePlayerByID(c.Request().Context(), request.ID); err != nil {
+
+		return c.JSON(http.StatusOK, "削除に失敗しました")
+
+	}
+	return c.JSON(http.StatusOK, "削除に成功しました")
 }

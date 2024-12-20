@@ -19,6 +19,7 @@ func New(playerHandler handler.IPlayerHandler) *Root {
 	e.POST("/opponent/answer", playerHandler.SubmitAnswerToOpponent) //request:id, passcode, answer
 	e.GET("/answers", playerHandler.FetchAnswersForComparison)       //request:id
 	e.POST("/answer/is-player", playerHandler.CompareAnswerIsPlayer) //request:id,select_answer
+	e.POST("/game/end", playerHandler.EndGame)                       //request:id
 
 	return &Root{
 		Echo: e,
