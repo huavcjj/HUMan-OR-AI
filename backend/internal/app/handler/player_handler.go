@@ -46,9 +46,17 @@ func (ph *playerHandler) StartNewGame(c echo.Context) error {
 	time.Sleep(5 * time.Second)
 
 	opponent, err := ph.ps.FindAvailableOpponentByPasscode(c.Request().Context(), newPlayer.ID, newPlayer.Passcode)
-	if opponent == nil || err != nil {
-		return c.JSON(http.StatusOK, err)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
 	}
+	if opponent == nil {
+
+		if err := ph.ps.DeletePlayerByID(c.Request().Context(), newPlayer.ID); err != nil {
+			return c.JSON(http.StatusInternalServerError, err)
+		}
+		return c.JSON(http.StatusNotFound, "対戦相手が見つかりませんでした")
+	}
+
 	return c.JSON(http.StatusOK, newPlayer.ID)
 }
 
