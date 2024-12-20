@@ -160,6 +160,10 @@ func (ph *playerHandler) EndGame(c echo.Context) error {
 		ID uint `json:"id"`
 	}
 
+	if err := c.Bind(&request); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
 	if err := ph.ps.DeletePlayerByID(c.Request().Context(), request.ID); err != nil {
 
 		return c.JSON(http.StatusOK, "削除に失敗しました")
