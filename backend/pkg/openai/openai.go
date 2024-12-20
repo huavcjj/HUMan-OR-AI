@@ -45,7 +45,7 @@ func (o *OpenAI) GenerateAIAnswer(ctx context.Context, topic string) (string, er
 	}
 	answer := answerResp.Choices[0].Message.Content
 
-	//不自然な始まりを除去
+	//回答整形
 	answer = o.FormatAIAnswer(answer)
 
 	return answer, nil
