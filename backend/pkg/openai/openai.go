@@ -46,14 +46,7 @@ func (o *OpenAI) GenerateAIAnswer(ctx context.Context, topic string) (string, er
 	answer := answerResp.Choices[0].Message.Content
 
 	//不自然な始まりを除去
-	answer = RemovePrefixes_answer(answer)
-
-	//charsToRemoveに含まれる文字を回答(answer)から取り除く（例 「宇宙で一番「困ること」は何？」　→　宇宙で一番困ることは何？）
-	answer = RemoveChars_answer(answer)
-
-	//:よりの文字を削除（例 ニャンニャンカフェ：ねこがバリスタ、ワンちゃんがウェイター　→　ねこがバリスタ、ワンちゃんがウェイター）
-	//:があったらもう一度答えを生成するのでもいいかも
-	answer = TrimBeforeColon_answer(answer)
+	answer = o.FormatAIAnswer(answer)
 
 	return answer, nil
 }
