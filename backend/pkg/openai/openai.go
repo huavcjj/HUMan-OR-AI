@@ -23,6 +23,7 @@ func (o *OpenAI) GenerateAIAnswer(ctx context.Context, topic string) (string, er
 
 	return "GPTで生成した回答", nil
 }
+
 func (o *OpenAI) GenerateGameTopicAIAnswer(ctx context.Context) (string, string, error) {
 	// ①大喜利のお題を生成
 	topicPrompt := "あなたは創造的で面白い大喜利のお題を考えるAIです。人をクスッと笑わせるような新しい大喜利のお題を一つ考えてください。ただし、お題の内容だけ、返してください。"
@@ -49,8 +50,10 @@ func (o *OpenAI) GenerateGameTopicAIAnswer(ctx context.Context) (string, string,
 	}
 	topic := topicResp.Choices[0].Message.Content
 
+	topic = RemoveChars_topic(topic)
+
 	// ②生成されたお題に対する面白い回答を生成
-	answerPrompt := fmt.Sprintf("お題: %s\nこのお題に対して、面白い回答を一つ考えてください。", topic)
+	answerPrompt := fmt.Sprintf("お題: %s\nこのお題に対して、面白い回答を一つ30文字以内で考えてください。", topic)
 
 	answerResp, err := o.client.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
 		Model: openai.GPT3Dot5Turbo,
@@ -73,6 +76,16 @@ func (o *OpenAI) GenerateGameTopicAIAnswer(ctx context.Context) (string, string,
 		return "", "", fmt.Errorf("no answer returned from GPT")
 	}
 	answer := answerResp.Choices[0].Message.Content
+
+	//不自然な始まりを除去
+	answer = RemovePrefixes_answer(answer)
+
+	//charsToRemoveに含まれる文字を回答(answer)から取り除く（例 「宇宙で一番「困ること」は何？」　→　宇宙で一番困ることは何？）
+	answer = RemoveChars_answer(answer)
+
+	//:よりの文字を削除（例 ニャンニャンカフェ：ねこがバリスタ、ワンちゃんがウェイター　→　ねこがバリスタ、ワンちゃんがウェイター）
+	//:があったらもう一度答えを生成するのでもいいかも
+	answer = TrimBeforeColon_answer(answer)
 
 	return topic, answer, nil
 }
