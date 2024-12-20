@@ -3,6 +3,7 @@ package openai
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/sashabaranov/go-openai"
 )
@@ -26,9 +27,32 @@ func (o *OpenAI) GenerateAIAnswer(ctx context.Context, topic string) (string, er
 
 func (o *OpenAI) FormatAIAnswer(aiAnswer string) string {
 	//AIの回答を受け取り、整形して返す。
-	//未実装
 
-	return "整形した回答"
+	//回答の最初と最後にある「」を取り除く
+	aiAnswer = strings.TrimPrefix(aiAnswer, "「")
+	aiAnswer = strings.TrimSuffix(aiAnswer, "」")
+
+	// prefixesに含まれる言葉で始まる場合、それを除去する
+	prefixes := []string{"なぜならば、", "なぜならば", "なぜなら、", "なぜなら"}
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(aiAnswer, prefix) {
+			aiAnswer = strings.TrimPrefix(aiAnswer, prefix)
+			break
+		}
+	}
+
+	// charsToRemove_answerに含まれる文字を除去
+	charsToRemove_answer := []string{"「", "」", "！", "。", "\"", "“", "”"}
+	for _, char := range charsToRemove_answer {
+		aiAnswer = strings.ReplaceAll(aiAnswer, char, "")
+	}
+
+	// :がある場合、:までの文字を除去
+	if idx := strings.LastIndex(aiAnswer, ":"); idx != -1 {
+		aiAnswer = aiAnswer[idx+1:]
+	}
+
+	return aiAnswer
 }
 
 func (o *OpenAI) GenerateGameTopicAIAnswer(ctx context.Context) (string, string, error) {
@@ -83,7 +107,7 @@ func (o *OpenAI) GenerateGameTopicAIAnswer(ctx context.Context) (string, string,
 	answer := answerResp.Choices[0].Message.Content
 
 	//回答整形
-	answer = AnswerCleaner(answer)
+	answer = o.FormatAIAnswer(answer)
 
 	return topic, answer, nil
 }
