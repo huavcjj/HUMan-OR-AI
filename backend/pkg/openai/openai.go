@@ -57,8 +57,6 @@ func (o *OpenAI) GenerateGameTopicAIAnswer(ctx context.Context) (string, string,
 	}
 	topic := topicResp.Choices[0].Message.Content
 
-	topic = RemoveChars_topic(topic)
-
 	// ②生成されたお題に対する面白い回答を生成
 	answerPrompt := fmt.Sprintf("お題: %s\nこのお題に対して、面白い回答を一つ30文字以内で考えてください。", topic)
 
@@ -84,15 +82,8 @@ func (o *OpenAI) GenerateGameTopicAIAnswer(ctx context.Context) (string, string,
 	}
 	answer := answerResp.Choices[0].Message.Content
 
-	//不自然な始まりを除去
-	answer = RemovePrefixes_answer(answer)
-
-	//charsToRemoveに含まれる文字を回答(answer)から取り除く（例 「宇宙で一番「困ること」は何？」　→　宇宙で一番困ることは何？）
-	answer = RemoveChars_answer(answer)
-
-	//:よりの文字を削除（例 ニャンニャンカフェ：ねこがバリスタ、ワンちゃんがウェイター　→　ねこがバリスタ、ワンちゃんがウェイター）
-	//:があったらもう一度答えを生成するのでもいいかも
-	answer = TrimBeforeColon_answer(answer)
+	//回答整形
+	answer = AnswerCleaner(answer)
 
 	return topic, answer, nil
 }
