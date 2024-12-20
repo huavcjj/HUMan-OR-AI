@@ -24,6 +24,13 @@ func (o *OpenAI) GenerateAIAnswer(ctx context.Context, topic string) (string, er
 	return "GPTで生成した回答", nil
 }
 
+func (o *OpenAI) FormatAIAnswer(aiAnswer string) string {
+	//AIの回答を受け取り、整形して返す。
+	//未実装
+
+	return "整形した回答"
+}
+
 func (o *OpenAI) GenerateGameTopicAIAnswer(ctx context.Context) (string, string, error) {
 	// ①大喜利のお題を生成
 	topicPrompt := "あなたは創造的で面白い大喜利のお題を考えるAIです。人をクスッと笑わせるような新しい大喜利のお題を一つ考えてください。ただし、お題の内容だけ、返してください。"
