@@ -152,11 +152,13 @@ export default function Home() {
             ) : isWating ? (
               <div className="flex flex-col items-center justify-center space-y-4">
                 <div className="text-[#ffd700] text-3xl font-bold">
-                  マッチング中...
+                  {isThemeCreation ? "お題を送信中..." : "マッチング中..."}
                 </div>
                 <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-[#ffd700]"></div>
                 <div className="text-[#ffd700] text-xl">
-                  あいことば: {keyword}
+                  {isThemeCreation
+                    ? `お題: ${theme}`
+                    : `あいことば: ${keyword}`}
                 </div>
               </div>
             ) : isThemeCreation ? (
@@ -184,7 +186,9 @@ export default function Home() {
                   お題を送信中...
                 </div>
                 <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-[#ffd700]"></div>
-                <div className="text-[#ffd700] text-xl">お題: {theme}</div>
+                <div className="text-[#ffd700] text-xl">
+                  自分のお題: {theme}
+                </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center space-y-4 w-full">
@@ -198,40 +202,24 @@ export default function Home() {
                   <h2 className="text-2xl font-bold mb-2">お題:</h2>
                   <p className="text-xl">{theme}</p>
                 </div>
-                <div className="flex w-full space-x-4">
-                  <div className="flex-1">
-                    <h3 className="text-[#ffd700] text-xl font-bold mb-2">
-                      あなたの回答
-                    </h3>
-                    <Textarea
-                      value={answer}
-                      onChange={(e) => setAnswer(e.target.value)}
-                      placeholder="回答を入力してください"
-                      className="w-full h-32 bg-white/90 border-2 border-[#ffd700] text-black p-2 rounded"
-                      disabled={isTimeUp}
-                    />
-                    <Button
-                      onClick={handleSubmit}
-                      disabled={answer.trim() === "" || isTimeUp}
-                      className="mt-2 bg-[#ffd700] hover:bg-[#ffec80] text-black font-bold py-2 px-4 rounded"
-                    >
-                      回答を送信
-                    </Button>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-[#ffd700] text-xl font-bold mb-2">
-                      ChatGPTの回答
-                    </h3>
-                    <div className="w-full h-32 bg-white/90 border-2 border-[#ffd700] text-black p-2 rounded overflow-y-auto">
-                      {isGptThinking ? (
-                        <div className="flex items-center justify-center h-full">
-                          <div className="animate-pulse text-lg">考え中...</div>
-                        </div>
-                      ) : (
-                        <p>{gptAnswer}</p>
-                      )}
-                    </div>
-                  </div>
+                <div className="w-full">
+                  <h3 className="text-[#ffd700] text-xl font-bold mb-2">
+                    あなたの回答
+                  </h3>
+                  <Textarea
+                    value={answer}
+                    onChange={(e) => setAnswer(e.target.value)}
+                    placeholder="回答を入力してください"
+                    className="w-full h-32 bg-white/90 border-2 border-[#ffd700] text-black p-2 rounded"
+                    disabled={isTimeUp}
+                  />
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={answer.trim() === "" || isTimeUp}
+                    className="mt-2 bg-[#ffd700] hover:bg-[#ffec80] text-black font-bold py-2 px-4 rounded"
+                  >
+                    回答を送信
+                  </Button>
                 </div>
                 {isTimeUp && (
                   <div className="text-[#ffd700] text-2xl font-bold mt-4">
