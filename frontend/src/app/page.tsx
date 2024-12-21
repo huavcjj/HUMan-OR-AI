@@ -13,31 +13,17 @@ export default function Home() {
   const [userTheme, setUserTheme] = useState("");
   const [answer, setAnswer] = useState("");
   const [timeLeft, setTimeLeft] = useState(60);
-  const [gameState, setGameState] = useState<
-    | "input"
-    | "matching"
-    | "themeInput"
-    | "loading"
-    | "answering"
-    | "submitting"
-    | "judging"
-    | "results"
-    | "finished"
-  >("input");
-  const [error, setError] = useState<string | null>(null);
-  const [aiAnswer, setAiAnswer] = useState("");
-  const [opponentAnswer, setOpponentAnswer] = useState("");
-  const [selectedAnswer, setSelectedAnswer] = useState<
-    "ai" | "opponent" | null
-  >(null);
-  const [userResult, setUserResult] = useState({
-    selectedAnswer: "",
-    isCorrect: false,
-  });
-  const [opponentResult, setOpponentResult] = useState({
-    selectedAnswer: "",
-    isCorrect: false,
-  });
+  const [isTimeUp, setIsTimeUp] = useState(false);
+
+  const Postkeyword = async () => {
+    const res = await fetch("POST http://localhost:8080/game/start", {
+      method: "POST",
+      headers: {
+        "Content-Type": "apllication/json",
+      },
+      body: JSON.stringify({ passcode: keyword }),
+    });
+  };
 
   const handleStart = () => {
     if (keyword.trim() !== "") {
