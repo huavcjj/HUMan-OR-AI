@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 'use client'
 
 import React, { useState, useEffect } from "react";
@@ -16,21 +15,34 @@ export default function Home() {
   const [isGptThinking, setIsGptThinking] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
   const [isTimeUp, setIsTimeUp] = useState(false);
+  const [res,setRes] = useState({
+    
+  })
 
-  // const Postkeyword = async()=>{
-  //   const res = await fetch('POST http://localhost:8080/game/start',{
-  //     method:'POST',
-  //     headers:{
-  //       'Content-Type':'apllication/json',
-  //     },
-  //     body:JSON.stringify({"passcode":keyword})
-  //   });
+  const Postkeyword = async()=>{
+    const res = await fetch('http://localhost:8080/game/start',{
+      method:'POST',
+      headers:{
+        'Content-Type':'apllication/json',
+      },
+      body:JSON.stringify({"passcode":keyword})
+    });
 
-  // }
+  }
+
+  const PostTheme = async()=>{
+    const res = await fetch('http://localhost:8080/player/topic/',{
+      method:'POST',
+      headers:{
+        'Content-Type':'apllication/json',
+      },
+      body:JSON.stringify({"passcode":theme})
+    });
+  }
  
   const handleStart = () => {
     if (keyword.trim() !== "") {
-      Postkeyword();
+      // Postkeyword();
       setIsMatching(true);
       setTimeout(() => {
         setIsMatching(false);
@@ -212,19 +224,3 @@ export default function Home() {
     </div>
   );
 }
-
-
-=======
-import Signin from "./components/Signin";
-import {useAuthState} from "react-firebase-hooks/auth"
-import firebase from "firebase/compat/app"
-import {auth} from "../../src/app/Firebase"
-
-export default function Home() {
-  return (
-    <div className="min-h-[100vh]">
-      <Signin/>
-    </div>
-  );
-}
->>>>>>> 9f243000d651a91094bd92690a327512bf12c76f
