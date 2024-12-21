@@ -92,5 +92,8 @@ func (ps *playerService) UpdateOpponentAnswer(ctx context.Context, id uint, oppo
 }
 
 func (ps *playerService) DeletePlayerByID(ctx context.Context, id uint) error {
-	return ps.pr.DeletePlayerByID(ctx, id)
+	if err := ps.pr.DeletePlayerByID(ctx, id); err != nil {
+		return err
+	}
+	return nil
 }

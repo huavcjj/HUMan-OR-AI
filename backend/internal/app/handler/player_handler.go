@@ -18,6 +18,7 @@ type IPlayerHandler interface {
 	SubmitAnswerToOpponent(c echo.Context) error    // 相手のお題に対する回答を提出する
 	FetchAnswersForComparison(c echo.Context) error // AIの回答と相手の回答を取得する
 	CompareAnswerIsPlayer(c echo.Context) error     // 送信した回答がAIか人間かを判定する
+	EndGame(c echo.Context) error
 }
 
 type playerHandler struct {
@@ -29,16 +30,18 @@ func NewPlayerHandler(ps service.IPlayerService) IPlayerHandler {
 }
 
 func (ph *playerHandler) StartNewGame(c echo.Context) error {
-	var player dto.Player
-	if err := c.Bind(&player); err != nil {
+	var passcodeReq dto.PasscodeReq
+	if err := c.Bind(&passcodeReq); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	if player.Passcode == "" {
+	if passcodeReq.Passcode == "" {
 		return c.JSON(http.StatusBadRequest, "合言葉を入力してください")
 	}
 
-	newPlayer, err := ph.ps.CreatePlayer(c.Request().Context(), &player)
+	player := dto.NewPlayer(passcodeReq.Passcode)
+
+	newPlayer, err := ph.ps.CreatePlayer(c.Request().Context(), player)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
@@ -57,16 +60,22 @@ func (ph *playerHandler) StartNewGame(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, "対戦相手が見つかりませんでした")
 	}
 
-	return c.JSON(http.StatusOK, newPlayer.ID)
+	passcodeResp := dto.PasscodeResp{
+		ID:       newPlayer.ID,
+		Passcode: newPlayer.Passcode,
+	}
+	return c.JSON(http.StatusOK, passcodeResp)
 }
 
 func (ph *playerHandler) SubmitPlayerTopic(c echo.Context) error {
-	var player dto.Player
-	if err := c.Bind(&player); err != nil {
+	var topicReq dto.TopicReq
+
+	if err := c.Bind(&topicReq); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	id := player.ID
-	topic := player.Topic
+
+	id := topicReq.ID
+	topic := topicReq.Topic
 
 	_, err := ph.ps.UpdateTopicAndAIAnswer(c.Request().Context(), id, topic)
 	if err != nil {
@@ -93,22 +102,27 @@ func (ph *playerHandler) FetchOpponentTopic(c echo.Context) error {
 	if opponentPlayer == nil || err != nil {
 		return c.JSON(http.StatusOK, err)
 	}
-	return c.JSON(http.StatusOK, opponentPlayer.Topic)
+
+	topicResp := dto.TopicResp{
+		Topic: opponentPlayer.Topic,
+	}
+
+	return c.JSON(http.StatusOK, topicResp)
 }
 
 func (ph *playerHandler) SubmitAnswerToOpponent(c echo.Context) error {
-	var player dto.Player
-	if err := c.Bind(&player); err != nil {
+	var answerReq dto.AnswerReq
+	if err := c.Bind(&answerReq); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	id := player.ID
-	passcode := player.Passcode
+	id := answerReq.ID
+	passcode := answerReq.Passcode
 
 	opponentPlayer, err := ph.ps.FindAvailableOpponentByPasscode(c.Request().Context(), id, passcode)
 	if opponentPlayer == nil || err != nil {
 		return c.JSON(http.StatusOK, err)
 	}
-	opponentPlayer.OpponentAnswer = player.Answer
+	opponentPlayer.OpponentAnswer = answerReq.Answer
 
 	_, err = ph.ps.UpdateOpponentAnswer(c.Request().Context(), opponentPlayer.ID, opponentPlayer.OpponentAnswer)
 	if err != nil {
@@ -136,19 +150,33 @@ func (ph *playerHandler) FetchAnswersForComparison(c echo.Context) error {
 }
 
 func (ph *playerHandler) CompareAnswerIsPlayer(c echo.Context) error {
-	var player dto.Player
-	if err := c.Bind(&player); err != nil {
+	var answerIsPlayerReq dto.AnswerIsPlayerReq
+	if err := c.Bind(&answerIsPlayerReq); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	id := player.ID
-	selectAnswer := player.SelectAnswer
+	id := answerIsPlayerReq.ID
+	selectAnswer := answerIsPlayerReq.SelectAnswer
 
-	newPlayer, err := ph.ps.GetPlayerByID(c.Request().Context(), id)
+	opponentPlayer, err := ph.ps.GetPlayerByID(c.Request().Context(), id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
-	if newPlayer.OpponentAnswer == selectAnswer {
+	if opponentPlayer.OpponentAnswer == selectAnswer {
 		return c.JSON(http.StatusOK, "正解です")
 	}
 	return c.JSON(http.StatusOK, "不正解です")
+}
+
+func (ph *playerHandler) EndGame(c echo.Context) error {
+	var idReq dto.IDReq
+	if err := c.Bind(&idReq); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	if err := ph.ps.DeletePlayerByID(c.Request().Context(), idReq.ID); err != nil {
+
+		return c.JSON(http.StatusInternalServerError, err)
+
+	}
+	return c.JSON(http.StatusOK, "ゲームを終了しました")
 }
