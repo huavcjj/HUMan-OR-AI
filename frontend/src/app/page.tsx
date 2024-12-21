@@ -4,27 +4,49 @@ import React, { useState, useEffect } from "react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { Textarea } from "./components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "./components/ui/radio-group";
+import { Label } from "./components/ui/label";
 
 export default function Home() {
   const [keyword, setKeyword] = useState("");
   const [theme, setTheme] = useState("");
+  const [userTheme, setUserTheme] = useState("");
   const [answer, setAnswer] = useState("");
   const [timeLeft, setTimeLeft] = useState(60);
   const [gameState, setGameState] = useState<
-    "input" | "matching" | "loading" | "answering" | "submitting" | "finished"
+    | "input"
+    | "matching"
+    | "themeInput"
+    | "loading"
+    | "answering"
+    | "submitting"
+    | "judging"
+    | "finished"
   >("input");
   const [error, setError] = useState<string | null>(null);
+  const [aiAnswer, setAiAnswer] = useState("");
+  const [opponentAnswer, setOpponentAnswer] = useState("");
+  const [selectedAnswer, setSelectedAnswer] = useState<
+    "ai" | "opponent" | null
+  >(null);
 
   const handleStart = () => {
     if (keyword.trim() !== "") {
       setGameState("matching");
       setTimeout(() => {
-        setGameState("loading");
-        setTimeout(() => {
-          setGameState("answering");
-          setTimeLeft(60);
-        }, 3000);
+        setGameState("themeInput");
       }, 6000);
+    }
+  };
+
+  const handleThemeSubmit = () => {
+    if (userTheme.trim() !== "") {
+      setGameState("loading");
+      setTimeout(() => {
+        setTheme(userTheme);
+        setGameState("answering");
+        setTimeLeft(60);
+      }, 3000);
     }
   };
 
@@ -33,8 +55,18 @@ export default function Home() {
       setGameState("submitting");
       setTimeout(() => {
         console.log("回答が提出されました:", answer);
-        setGameState("finished");
+        // Simulate receiving AI and opponent answers
+        setAiAnswer("AIによる模範回答です。");
+        setOpponentAnswer("対戦相手の面白い回答です。");
+        setGameState("judging");
       }, 3000);
+    }
+  };
+
+  const handleJudgment = () => {
+    if (selectedAnswer) {
+      console.log("選択された回答:", selectedAnswer);
+      setGameState("finished");
     }
   };
 
@@ -45,7 +77,7 @@ export default function Home() {
         setTimeLeft((prevTime) => prevTime - 1);
       }, 1000);
     } else if (timeLeft === 0 && gameState === "answering") {
-      setGameState("finished");
+      setGameState("submitting");
     }
     return () => clearInterval(timer);
   }, [gameState, timeLeft]);
@@ -114,23 +146,48 @@ export default function Home() {
                 </Button>
               </div>
             )}
-            {(gameState === "matching" ||
-              gameState === "loading" ||
-              gameState === "submitting") && (
+            {gameState === "matching" && (
               <div className="flex flex-col items-center justify-center space-y-4">
                 <div className="text-[#ffd700] text-3xl font-bold">
-                  {gameState === "matching"
-                    ? "マッチング中..."
-                    : gameState === "loading"
-                    ? "お題を取得中..."
-                    : "回答を送信中..."}
+                  マッチング中...
                 </div>
                 <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-[#ffd700]"></div>
-                {gameState === "matching" && (
-                  <div className="text-[#ffd700] text-xl">
-                    あいことば: {keyword}
-                  </div>
-                )}
+                <div className="text-[#ffd700] text-xl">
+                  あいことば: {keyword}
+                </div>
+              </div>
+            )}
+            {gameState === "themeInput" && (
+              <div className="flex flex-col items-center space-y-4 w-full max-w-xs">
+                <label
+                  htmlFor="theme"
+                  className="text-[#ffd700] text-xl font-bold"
+                >
+                  お題を考えてください
+                </label>
+                <Input
+                  id="theme"
+                  type="text"
+                  value={userTheme}
+                  onChange={(e) => setUserTheme(e.target.value)}
+                  className="bg-white/90 border-2 border-[#ffd700] text-black text-center"
+                  placeholder="お題を入力"
+                />
+                <Button
+                  onClick={handleThemeSubmit}
+                  disabled={userTheme.trim() === ""}
+                  className="bg-[#ffd700] hover:bg-[#ffec80] text-black font-bold py-2 px-4 rounded"
+                >
+                  お題を送信
+                </Button>
+              </div>
+            )}
+            {gameState === "loading" && (
+              <div className="flex flex-col items-center justify-center space-y-4">
+                <div className="text-[#ffd700] text-3xl font-bold">
+                  お題を取得中...
+                </div>
+                <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-[#ffd700]"></div>
               </div>
             )}
             {gameState === "answering" && (
@@ -165,13 +222,59 @@ export default function Home() {
                 </div>
               </div>
             )}
+            {gameState === "submitting" && (
+              <div className="flex flex-col items-center justify-center space-y-4">
+                <div className="text-[#ffd700] text-3xl font-bold">
+                  回答を送信中...
+                </div>
+                <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-[#ffd700]"></div>
+              </div>
+            )}
+            {gameState === "judging" && (
+              <div className="flex flex-col items-center justify-center space-y-4 w-full">
+                <div className="text-[#ffd700] text-3xl font-bold mb-4">
+                  人間の回答はどちら？
+                </div>
+                <div className="bg-white/90 border-2 border-[#ffd700] rounded p-4 w-full mb-4">
+                  <h2 className="text-2xl font-bold mb-2">お題:</h2>
+                  <p className="text-xl">{theme}</p>
+                </div>
+                <RadioGroup
+                  value={selectedAnswer || ""}
+                  onValueChange={(value) =>
+                    setSelectedAnswer(value as "ai" | "opponent")
+                  }
+                  className="w-full space-y-2"
+                >
+                  <div className="flex items-center space-x-2 bg-white/90 p-4 rounded">
+                    <RadioGroupItem value="ai" id="ai" />
+                    <Label htmlFor="ai" className="text-black">
+                      回答A: {aiAnswer}
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2 bg-white/90 p-4 rounded">
+                    <RadioGroupItem value="opponent" id="opponent" />
+                    <Label htmlFor="opponent" className="text-black">
+                      回答B: {opponentAnswer}
+                    </Label>
+                  </div>
+                </RadioGroup>
+                <Button
+                  onClick={handleJudgment}
+                  disabled={!selectedAnswer}
+                  className="mt-4 bg-[#ffd700] hover:bg-[#ffec80] text-black font-bold py-2 px-4 rounded"
+                >
+                  判定
+                </Button>
+              </div>
+            )}
             {gameState === "finished" && (
               <div className="flex flex-col items-center justify-center space-y-4">
                 <div className="text-[#ffd700] text-3xl font-bold">
-                  回答が送信されました！
+                  ゲーム終了！
                 </div>
                 <div className="text-[#ffd700] text-xl">
-                  次の画面に進みます...
+                  結果は後ほど発表されます。
                 </div>
               </div>
             )}
