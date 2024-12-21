@@ -13,15 +13,15 @@ var (
 	DBUser     string
 	DBPassword string
 	DBName     string
-
-	APIKey string
+	FEURL      string
+	APIKey     string
 )
 
 func LoadEnv() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatalf("Error loading .env file")
 	}
-
+	FEURL = os.Getenv("FE_URL")
 	DBHost = os.Getenv("DB_HOST")
 	DBPort = os.Getenv("DB_PORT")
 	DBUser = os.Getenv("DB_USER")
