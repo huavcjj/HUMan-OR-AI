@@ -1,4 +1,11 @@
+<<<<<<< HEAD
 'use client'
+=======
+
+'use client'
+
+
+>>>>>>> 8b1ba0396e1848aea5dc4d5006dd28315e54a41c
 import React, { useState, useEffect } from "react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
@@ -15,17 +22,16 @@ export default function Home() {
   const [timeLeft, setTimeLeft] = useState(60);
   const [isTimeUp, setIsTimeUp] = useState(false);
 
-  // const Postkeyword = async()=>{
-  //   const res = await fetch('POST http://localhost:8080/game/start',{
-  //     method:'POST',
-  //     headers:{
-  //       'Content-Type':'apllication/json',
-  //     },
-  //     body:JSON.stringify({"passcode":keyword})
-  //   });
+  const Postkeyword = async () => {
+    const res = await fetch("POST http://localhost:8080/game/start", {
+      method: "POST",
+      headers: {
+        "Content-Type": "apllication/json",
+      },
+      body: JSON.stringify({ passcode: keyword }),
+    });
+  };
 
-  // }
- 
   const handleStart = () => {
     if (keyword.trim() !== "") {
       // Postkeyword();
@@ -211,4 +217,7 @@ export default function Home() {
   );
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8b1ba0396e1848aea5dc4d5006dd28315e54a41c
