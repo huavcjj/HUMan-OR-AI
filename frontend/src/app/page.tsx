@@ -51,7 +51,11 @@ export default function Home() {
 
   const handleStart = () => {
     if (keyword.trim() !== "") {
+
       setGameState("matching");
+
+      Postkeyword();
+
       setTimeout(() => {
         setGameState("themeInput");
       }, 6000);
