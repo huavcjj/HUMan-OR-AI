@@ -7,15 +7,15 @@ import { Textarea } from "./components/ui/textarea";
 
 export default function Home() {
   const [keyword, setKeyword] = useState("");
-  const [isWating, setIsWating] = useState(false);
-  const [isThemeCreation, setIsThemeCreation] = useState(false);
+  const [isMatching, setIsMatching] = useState(false);
   const [isAnswering, setIsAnswering] = useState(false);
   const [theme, setTheme] = useState("");
   const [answer, setAnswer] = useState("");
-  const [gptAnswer, setGptAnswer] = useState("");
-  const [isGptThinking, setIsGptThinking] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
   const [isTimeUp, setIsTimeUp] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const Postkeyword = async () => {
     const res = await fetch("POST http://localhost:8080/game/start", {
@@ -29,48 +29,32 @@ export default function Home() {
 
   const handleStart = () => {
     if (keyword.trim() !== "") {
-      Postkeyword();
-      setIsWating(true);
+      setIsMatching(true);
       setTimeout(() => {
-        setIsWating(false);
-        setIsThemeCreation(true);
+        setIsMatching(false);
+        setIsLoading(true);
       }, 6000);
     }
   };
 
   const handleThemeSubmit = () => {
     if (theme.trim() !== "") {
-      setIsWating(true);
+      setIsMatching(true);
       setTimeout(() => {
-        setIsWating(false);
-        setIsThemeCreation(false);
+        setIsMatching(false);
+        setIsLoading(false);
         setIsAnswering(true);
-        setIsGptThinking(true);
         setTimeLeft(60);
         setIsTimeUp(false);
       }, 3000);
     }
   };
-
   const handleSubmit = () => {
     if (answer.trim() !== "" && !isTimeUp) {
       console.log("回答が提出されました:", answer);
       // ここで回答を送信するロジックを実装します
     }
   };
-
-  useEffect(() => {
-    if (isGptThinking) {
-      const thinkingTime = Math.random() * 5000 + 5000; // 5-10秒のランダムな時間
-      const timer = setTimeout(() => {
-        setGptAnswer(
-          "「いいね何件！」現代のSNS時代にマッチした新しい褒め方ですね。"
-        );
-        setIsGptThinking(false);
-      }, thinkingTime);
-      return () => clearTimeout(timer);
-    }
-  }, [isGptThinking]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -123,72 +107,56 @@ export default function Home() {
 
           {/* コンテンツエリア */}
           <div className="bg-[#cc0000] border-4 border-[#ffd700] rounded-lg p-8 space-y-4 relative z-10 w-5/6 max-w-2xl">
-            {!isWating && !isThemeCreation && !isWating && !isAnswering ? (
-              <>
-                <div className="flex flex-col items-center space-y-4 w-full max-w-xs">
-                  <label
-                    htmlFor="keyword"
-                    className="text-[#ffd700] text-xl font-bold"
-                  >
-                    あいことば
-                  </label>
-                  <Input
-                    id="keyword"
-                    type="text"
-                    value={keyword}
-                    onChange={(e) => setKeyword(e.target.value)}
-                    className="bg-white/90 border-2 border-[#ffd700] text-black text-center"
-                    placeholder="あいことばを入力"
-                  />
-                  <Button
-                    onClick={handleStart}
-                    disabled={keyword.trim() === ""}
-                    className="bg-[#ffd700] hover:bg-[#ffec80] text-black font-bold py-2 px-4 rounded"
-                  >
-                    スタート
-                  </Button>
-                </div>
-              </>
-            ) : isWating ? (
-              <div className="flex flex-col items-center justify-center space-y-4">
-                <div className="text-[#ffd700] text-3xl font-bold">
-                  {isThemeCreation ? "お題を送信中..." : "マッチング中..."}
-                </div>
-                <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-[#ffd700]"></div>
-                <div className="text-[#ffd700] text-xl">
-                  {isThemeCreation
-                    ? `お題: ${theme}`
-                    : `あいことば: ${keyword}`}
-                </div>
-              </div>
-            ) : isThemeCreation ? (
-              <div className="flex flex-col items-center justify-center space-y-4 w-full">
-                <div className="text-[#ffd700] text-3xl font-bold mb-4">
-                  お題を考えよう
-                </div>
-                <Textarea
-                  value={theme}
-                  onChange={(e) => setTheme(e.target.value)}
-                  placeholder="大喜利のお題を入力してください"
-                  className="w-full h-32 bg-white/90 border-2 border-[#ffd700] text-black p-2 rounded"
+            {!isMatching && !isAnswering && !isSubmitting ? (
+              <div className="flex flex-col items-center space-y-4 w-full max-w-xs">
+                <label
+                  htmlFor="keyword"
+                  className="text-[#ffd700] text-xl font-bold"
+                >
+                  あいことば
+                </label>
+                <Input
+                  id="keyword"
+                  type="text"
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  className="bg-white/90 border-2 border-[#ffd700] text-black text-center"
+                  placeholder="あいことばを入力"
                 />
                 <Button
-                  onClick={handleThemeSubmit}
-                  disabled={theme.trim() === ""}
-                  className="mt-2 bg-[#ffd700] hover:bg-[#ffec80] text-black font-bold py-2 px-4 rounded"
+                  onClick={handleStart}
+                  disabled={keyword.trim() === ""}
+                  className="bg-[#ffd700] hover:bg-[#ffec80] text-black font-bold py-2 px-4 rounded"
                 >
-                  お題を送信
+                  スタート
                 </Button>
               </div>
-            ) : isWating ? (
+            ) : isMatching || isLoading || isSubmitting ? (
               <div className="flex flex-col items-center justify-center space-y-4">
                 <div className="text-[#ffd700] text-3xl font-bold">
-                  お題を送信中...
+                  {isMatching && !isSubmitting
+                    ? "マッチング中..."
+                    : isLoading
+                    ? "お題を取得中..."
+                    : "回答を送信中..."}
                 </div>
                 <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-[#ffd700]"></div>
-                <div className="text-[#ffd700] text-xl">
-                  自分のお題: {theme}
-                </div>
+                {isMatching && !isSubmitting && (
+                  <div className="text-[#ffd700] text-xl">
+                    あいことば: {keyword}
+                  </div>
+                )}
+              </div>
+            ) : error ? (
+              <div className="flex flex-col items-center justify-center space-y-4">
+                <div className="text-[#ffd700] text-3xl font-bold">エラー</div>
+                <div className="text-[#ffd700] text-xl">{error}</div>
+                <Button
+                  onClick={fetchTheme}
+                  className="bg-[#ffd700] hover:bg-[#ffec80] text-black font-bold py-2 px-4 rounded"
+                >
+                  再試行
+                </Button>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center space-y-4 w-full">
