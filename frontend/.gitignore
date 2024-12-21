@@ -44,3 +44,10 @@ next-env.d.ts
 .next/
 dist/
 *.log
+
+# Ignore .env file
+backend/.env
+
+# Ignore Bot-or-Not directory
+frontend/Bot-or-Not
+
