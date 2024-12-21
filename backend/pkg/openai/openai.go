@@ -21,21 +21,21 @@ func NewOpenAI(apiKey string) *OpenAI {
 func (o *OpenAI) GenerateAIAnswer(ctx context.Context, topic string) (string, error) {
 
 	//プレイヤーのお題内容を受け取り、お題に対してGPTで生成した回答を返す。
-	answerPrompt := fmt.Sprintf("お題: %s\nこのお題に対して、芸人レベルに面白い、現実でもあり得る回答を一つ30文字以内で考えてください。", topic)
+	answerPrompt := fmt.Sprintf("お題: %s\nこのお題に対して、芸人レベルに面白い、現実でもあり得る回答を一つ30文字以内で考えてください。ただし、必ず１文で返してください。", topic)
 
 	answerResp, err := o.client.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
-		Model: openai.GPT3Dot5Turbo,
+		Model: openai.GPT4,
 		Messages: []openai.ChatCompletionMessage{
 			{
 				Role:    openai.ChatMessageRoleSystem,
-				Content: "あなたはユーモアに富んだ大喜利回答者です。",
+				Content: "あなたはユーモアに富んだ大喜利回答者です。文法的に正しい文章で返してください。",
 			},
 			{
 				Role:    openai.ChatMessageRoleUser,
 				Content: answerPrompt,
 			},
 		},
-		Temperature: 0.7,
+		Temperature: 0.9,
 	})
 	if err != nil {
 		return "", fmt.Errorf("failed to get answer: %w", err)
