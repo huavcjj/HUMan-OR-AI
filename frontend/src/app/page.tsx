@@ -7,66 +7,48 @@ import { Textarea } from "./components/ui/textarea";
 
 export default function Home() {
   const [keyword, setKeyword] = useState("");
-  const [isMatching, setIsMatching] = useState(false);
-  const [isAnswering, setIsAnswering] = useState(false);
   const [theme, setTheme] = useState("");
   const [answer, setAnswer] = useState("");
   const [timeLeft, setTimeLeft] = useState(60);
-  const [isTimeUp, setIsTimeUp] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [gameState, setGameState] = useState<
+    "input" | "matching" | "loading" | "answering" | "submitting" | "finished"
+  >("input");
   const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const Postkeyword = async () => {
-    const res = await fetch("POST http://localhost:8080/game/start", {
-      method: "POST",
-      headers: {
-        "Content-Type": "apllication/json",
-      },
-      body: JSON.stringify({ passcode: keyword }),
-    });
-  };
 
   const handleStart = () => {
     if (keyword.trim() !== "") {
-      setIsMatching(true);
+      setGameState("matching");
       setTimeout(() => {
-        setIsMatching(false);
-        setIsLoading(true);
+        setGameState("loading");
+        setTimeout(() => {
+          setGameState("answering");
+          setTimeLeft(60);
+        }, 3000);
       }, 6000);
     }
   };
 
-  const handleThemeSubmit = () => {
-    if (theme.trim() !== "") {
-      setIsMatching(true);
-      setTimeout(() => {
-        setIsMatching(false);
-        setIsLoading(false);
-        setIsAnswering(true);
-        setTimeLeft(60);
-        setIsTimeUp(false);
-      }, 3000);
-    }
-  };
   const handleSubmit = () => {
-    if (answer.trim() !== "" && !isTimeUp) {
-      console.log("回答が提出されました:", answer);
-      // ここで回答を送信するロジックを実装します
+    if (answer.trim() !== "" && gameState === "answering") {
+      setGameState("submitting");
+      setTimeout(() => {
+        console.log("回答が提出されました:", answer);
+        setGameState("finished");
+      }, 3000);
     }
   };
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (isAnswering && timeLeft > 0) {
+    if (gameState === "answering" && timeLeft > 0) {
       timer = setInterval(() => {
         setTimeLeft((prevTime) => prevTime - 1);
       }, 1000);
-    } else if (timeLeft === 0) {
-      setIsTimeUp(true);
+    } else if (timeLeft === 0 && gameState === "answering") {
+      setGameState("finished");
     }
     return () => clearInterval(timer);
-  }, [isAnswering, timeLeft]);
+  }, [gameState, timeLeft]);
 
   const getTimerColor = () => {
     if (timeLeft > 30) return "text-green-500";
@@ -107,7 +89,7 @@ export default function Home() {
 
           {/* コンテンツエリア */}
           <div className="bg-[#cc0000] border-4 border-[#ffd700] rounded-lg p-8 space-y-4 relative z-10 w-5/6 max-w-2xl">
-            {!isMatching && !isAnswering && !isSubmitting ? (
+            {gameState === "input" && (
               <div className="flex flex-col items-center space-y-4 w-full max-w-xs">
                 <label
                   htmlFor="keyword"
@@ -131,34 +113,27 @@ export default function Home() {
                   スタート
                 </Button>
               </div>
-            ) : isMatching || isLoading || isSubmitting ? (
+            )}
+            {(gameState === "matching" ||
+              gameState === "loading" ||
+              gameState === "submitting") && (
               <div className="flex flex-col items-center justify-center space-y-4">
                 <div className="text-[#ffd700] text-3xl font-bold">
-                  {isMatching && !isSubmitting
+                  {gameState === "matching"
                     ? "マッチング中..."
-                    : isLoading
+                    : gameState === "loading"
                     ? "お題を取得中..."
                     : "回答を送信中..."}
                 </div>
                 <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-[#ffd700]"></div>
-                {isMatching && !isSubmitting && (
+                {gameState === "matching" && (
                   <div className="text-[#ffd700] text-xl">
                     あいことば: {keyword}
                   </div>
                 )}
               </div>
-            ) : error ? (
-              <div className="flex flex-col items-center justify-center space-y-4">
-                <div className="text-[#ffd700] text-3xl font-bold">エラー</div>
-                <div className="text-[#ffd700] text-xl">{error}</div>
-                <Button
-                  onClick={fetchTheme}
-                  className="bg-[#ffd700] hover:bg-[#ffec80] text-black font-bold py-2 px-4 rounded"
-                >
-                  再試行
-                </Button>
-              </div>
-            ) : (
+            )}
+            {gameState === "answering" && (
               <div className="flex flex-col items-center justify-center space-y-4 w-full">
                 <div className="text-[#ffd700] text-3xl font-bold mb-4">
                   大喜利
@@ -179,21 +154,25 @@ export default function Home() {
                     onChange={(e) => setAnswer(e.target.value)}
                     placeholder="回答を入力してください"
                     className="w-full h-32 bg-white/90 border-2 border-[#ffd700] text-black p-2 rounded"
-                    disabled={isTimeUp}
                   />
                   <Button
                     onClick={handleSubmit}
-                    disabled={answer.trim() === "" || isTimeUp}
+                    disabled={answer.trim() === ""}
                     className="mt-2 bg-[#ffd700] hover:bg-[#ffec80] text-black font-bold py-2 px-4 rounded"
                   >
                     回答を送信
                   </Button>
                 </div>
-                {isTimeUp && (
-                  <div className="text-[#ffd700] text-2xl font-bold mt-4">
-                    時間切れ！
-                  </div>
-                )}
+              </div>
+            )}
+            {gameState === "finished" && (
+              <div className="flex flex-col items-center justify-center space-y-4">
+                <div className="text-[#ffd700] text-3xl font-bold">
+                  回答が送信されました！
+                </div>
+                <div className="text-[#ffd700] text-xl">
+                  次の画面に進みます...
+                </div>
               </div>
             )}
           </div>
