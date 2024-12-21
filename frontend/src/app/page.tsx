@@ -43,19 +43,37 @@ export default function Home() {
   const [resKeyword, setResKeyWord] = useState<any>({});
 
   const PostKeyword = async () => {
-    const res = await fetch("http://localhost:8080/game/start", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ pssscode: keyword }),
-    });
-    const responses = res.json();
-    setKeyRes(keyRes);
+    try {
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Timeout")), 20000)
+      );
+      const fetchPromise = await fetch("http://localhost:8080/game/start", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ passcode: keyword }),
+      });
+
+      const res = await Promise.race([fetchPromise, timeoutPromise]);
+      const data = await res.json();
+      setKeyRes(data);
+      if (data && data.id) {
+        setGameState("themeInput");
+      } else {
+        setError("マッチングに失敗しました。もう一度お試しください。");
+        setGameState("input");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setError("マッチングに失敗しました。もう一度お試しください。");
+      setGameState("input");
+    }
+    console.log(data);
   };
 
   const PostTheme = async () => {
-    const res = await fetch("http://localhost:8080/player/topic/", {
+    const res = await fetch("http://localhost:8080/player/topic", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -100,12 +118,8 @@ export default function Home() {
   const handleStart = () => {
     if (keyword.trim() !== "") {
       setGameState("matching");
-
+      setError(null);
       PostKeyword();
-
-      setTimeout(() => {
-        setGameState("themeInput");
-      }, 6000);
     }
   };
 
@@ -237,6 +251,9 @@ export default function Home() {
                   あいことば: {keyword}
                 </div>
               </div>
+            )}
+            {error && (
+              <div className="text-red-500 font-bold mt-4">{error}</div>
             )}
             {gameState === "themeInput" && (
               <div className="flex flex-col items-center space-y-4 w-full max-w-xs">
@@ -402,6 +419,7 @@ export default function Home() {
                     setUserTheme("");
                     setAnswer("");
                     setSelectedAnswer(null);
+                    setError(null);
                   }}
                   className="mt-4 bg-[#ffd700] hover:bg-[#ffec80] text-black font-bold py-2 px-4 rounded"
                 >
