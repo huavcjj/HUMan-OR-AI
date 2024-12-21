@@ -21,6 +21,7 @@ export default function Home() {
     | "answering"
     | "submitting"
     | "judging"
+    | "results"
     | "finished"
   >("input");
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +30,14 @@ export default function Home() {
   const [selectedAnswer, setSelectedAnswer] = useState<
     "ai" | "opponent" | null
   >(null);
+  const [userResult, setUserResult] = useState({
+    selectedAnswer: "",
+    isCorrect: false,
+  });
+  const [opponentResult, setOpponentResult] = useState({
+    selectedAnswer: "",
+    isCorrect: false,
+  });
 
   const handleStart = () => {
     if (keyword.trim() !== "") {
@@ -66,7 +75,18 @@ export default function Home() {
   const handleJudgment = () => {
     if (selectedAnswer) {
       console.log("選択された回答:", selectedAnswer);
-      setGameState("finished");
+      // Simulate results
+      const userIsCorrect = Math.random() < 0.5;
+      const opponentIsCorrect = Math.random() < 0.5;
+      setUserResult({
+        selectedAnswer: selectedAnswer === "ai" ? "A" : "B",
+        isCorrect: userIsCorrect,
+      });
+      setOpponentResult({
+        selectedAnswer: Math.random() < 0.5 ? "A" : "B",
+        isCorrect: opponentIsCorrect,
+      });
+      setGameState("results");
     }
   };
 
@@ -268,14 +288,64 @@ export default function Home() {
                 </Button>
               </div>
             )}
+            {gameState === "results" && (
+              <div className="flex flex-col items-center justify-center space-y-4 w-full">
+                <div className="text-[#ffd700] text-3xl font-bold mb-4">
+                  結果発表
+                </div>
+                <div className="flex w-full justify-between">
+                  <div className="bg-white/90 border-2 border-[#ffd700] rounded p-4 w-[48%]">
+                    <h3 className="text-xl font-bold mb-2">あなたの結果</h3>
+                    <p>選んだ回答: {userResult.selectedAnswer}</p>
+                    <p>
+                      判定:{" "}
+                      {userResult.isCorrect ? (
+                        <span className="text-green-600 font-bold">正解</span>
+                      ) : (
+                        <span className="text-red-600 font-bold">不正解</span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="bg-white/90 border-2 border-[#ffd700] rounded p-4 w-[48%]">
+                    <h3 className="text-xl font-bold mb-2">相手の結果</h3>
+                    <p>選んだ回答: {opponentResult.selectedAnswer}</p>
+                    <p>
+                      判定:{" "}
+                      {opponentResult.isCorrect ? (
+                        <span className="text-green-600 font-bold">正解</span>
+                      ) : (
+                        <span className="text-red-600 font-bold">不正解</span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => setGameState("finished")}
+                  className="mt-4 bg-[#ffd700] hover:bg-[#ffec80] text-black font-bold py-2 px-4 rounded"
+                >
+                  ゲーム終了
+                </Button>
+              </div>
+            )}
             {gameState === "finished" && (
               <div className="flex flex-col items-center justify-center space-y-4">
                 <div className="text-[#ffd700] text-3xl font-bold">
                   ゲーム終了！
                 </div>
-                <div className="text-[#ffd700] text-xl">
-                  結果は後ほど発表されます。
-                </div>
+                <div className="text-[#ffd700] text-xl">お疲れ様でした。</div>
+                <Button
+                  onClick={() => {
+                    setGameState("input");
+                    setKeyword("");
+                    setTheme("");
+                    setUserTheme("");
+                    setAnswer("");
+                    setSelectedAnswer(null);
+                  }}
+                  className="mt-4 bg-[#ffd700] hover:bg-[#ffec80] text-black font-bold py-2 px-4 rounded"
+                >
+                  新しいゲームを始める
+                </Button>
               </div>
             )}
           </div>
