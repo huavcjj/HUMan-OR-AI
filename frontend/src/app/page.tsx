@@ -1,6 +1,4 @@
-
-'use client'
-
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { Button } from "./components/ui/button";
@@ -9,8 +7,9 @@ import { Textarea } from "./components/ui/textarea";
 
 export default function Home() {
   const [keyword, setKeyword] = useState("");
-  const [isMatching, setIsMatching] = useState(false);
-  const [isMatched, setIsMatched] = useState(false);
+  const [isWating, setIsWating] = useState(false);
+  const [isThemeCreation, setIsThemeCreation] = useState(false);
+  const [isAnswering, setIsAnswering] = useState(false);
   const [theme, setTheme] = useState("");
   const [answer, setAnswer] = useState("");
   const [gptAnswer, setGptAnswer] = useState("");
@@ -31,17 +30,25 @@ export default function Home() {
   const handleStart = () => {
     if (keyword.trim() !== "") {
       Postkeyword();
-      setIsMatching(true);
+      setIsWating(true);
       setTimeout(() => {
-        setIsMatching(false);
-        setIsMatched(true);
-        setTheme(
-          "笑点でよく見る「座布団何枚」を現代風にアレンジするとどうなる？"
-        );
+        setIsWating(false);
+        setIsThemeCreation(true);
+      }, 6000);
+    }
+  };
+
+  const handleThemeSubmit = () => {
+    if (theme.trim() !== "") {
+      setIsWating(true);
+      setTimeout(() => {
+        setIsWating(false);
+        setIsThemeCreation(false);
+        setIsAnswering(true);
         setIsGptThinking(true);
         setTimeLeft(60);
         setIsTimeUp(false);
-      }, 6000);
+      }, 3000);
     }
   };
 
@@ -67,7 +74,7 @@ export default function Home() {
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (isMatched && timeLeft > 0) {
+    if (isAnswering && timeLeft > 0) {
       timer = setInterval(() => {
         setTimeLeft((prevTime) => prevTime - 1);
       }, 1000);
@@ -75,7 +82,7 @@ export default function Home() {
       setIsTimeUp(true);
     }
     return () => clearInterval(timer);
-  }, [isMatched, timeLeft]);
+  }, [isAnswering, timeLeft]);
 
   const getTimerColor = () => {
     if (timeLeft > 30) return "text-green-500";
@@ -116,7 +123,7 @@ export default function Home() {
 
           {/* コンテンツエリア */}
           <div className="bg-[#cc0000] border-4 border-[#ffd700] rounded-lg p-8 space-y-4 relative z-10 w-5/6 max-w-2xl">
-            {!isMatching && !isMatched ? (
+            {!isWating && !isThemeCreation && !isWating && !isAnswering ? (
               <>
                 <div className="flex flex-col items-center space-y-4 w-full max-w-xs">
                   <label
@@ -142,7 +149,7 @@ export default function Home() {
                   </Button>
                 </div>
               </>
-            ) : isMatching ? (
+            ) : isWating ? (
               <div className="flex flex-col items-center justify-center space-y-4">
                 <div className="text-[#ffd700] text-3xl font-bold">
                   マッチング中...
@@ -151,6 +158,33 @@ export default function Home() {
                 <div className="text-[#ffd700] text-xl">
                   あいことば: {keyword}
                 </div>
+              </div>
+            ) : isThemeCreation ? (
+              <div className="flex flex-col items-center justify-center space-y-4 w-full">
+                <div className="text-[#ffd700] text-3xl font-bold mb-4">
+                  お題を考えよう
+                </div>
+                <Textarea
+                  value={theme}
+                  onChange={(e) => setTheme(e.target.value)}
+                  placeholder="大喜利のお題を入力してください"
+                  className="w-full h-32 bg-white/90 border-2 border-[#ffd700] text-black p-2 rounded"
+                />
+                <Button
+                  onClick={handleThemeSubmit}
+                  disabled={theme.trim() === ""}
+                  className="mt-2 bg-[#ffd700] hover:bg-[#ffec80] text-black font-bold py-2 px-4 rounded"
+                >
+                  お題を送信
+                </Button>
+              </div>
+            ) : isWating ? (
+              <div className="flex flex-col items-center justify-center space-y-4">
+                <div className="text-[#ffd700] text-3xl font-bold">
+                  お題を送信中...
+                </div>
+                <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-[#ffd700]"></div>
+                <div className="text-[#ffd700] text-xl">お題: {theme}</div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center space-y-4 w-full">
@@ -212,4 +246,3 @@ export default function Home() {
     </div>
   );
 }
-
