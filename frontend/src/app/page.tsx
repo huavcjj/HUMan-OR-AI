@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 'use client'
 
 import React, { useState, useEffect } from "react";
@@ -213,3 +214,17 @@ export default function Home() {
 }
 
 
+=======
+import Signin from "./components/Signin";
+import {useAuthState} from "react-firebase-hooks/auth"
+import firebase from "firebase/compat/app"
+import {auth} from "../../src/app/Firebase"
+
+export default function Home() {
+  return (
+    <div className="min-h-[100vh]">
+      <Signin/>
+    </div>
+  );
+}
+>>>>>>> 9f243000d651a91094bd92690a327512bf12c76f
