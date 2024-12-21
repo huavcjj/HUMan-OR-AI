@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: user # データベースのユーザー名
+      POSTGRES_PASSWORD: pass # データベースのパスワード
+      POSTGRES_DB: db # 初期に作成するデータベース名
+    ports:
+      - "35432:5432" # localhost:15432をコンテナの5432にマッピング
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
