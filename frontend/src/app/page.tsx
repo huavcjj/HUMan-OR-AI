@@ -9,6 +9,7 @@ import { Label } from "./components/ui/label";
 
 export default function Home() {
   const [keyword, setKeyword] = useState("");
+  const [keyRes, setKeyRes] = useState({ id: 0, passcode: "abc" });
   const [theme, setTheme] = useState("");
   const [userTheme, setUserTheme] = useState("");
   const [answer, setAnswer] = useState("");
@@ -39,22 +40,68 @@ export default function Home() {
     isCorrect: false,
   });
 
-  const Postkeyword = async () => {
-    const res = await fetch("POST http://localhost:8080/game/start", {
+  const [resKeyword, setResKeyWord] = useState<any>({});
+
+  const PostKeyword = async () => {
+    const res = await fetch("http://localhost:8080/game/start", {
       method: "POST",
       headers: {
-        "Content-Type": "apllication/json",
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ passcode: keyword }),
+      body: JSON.stringify({ pssscode: keyword }),
     });
+    const responses = res.json();
+    setKeyRes(keyRes);
+  };
+
+  const PostTheme = async () => {
+    const res = await fetch("http://localhost:8080/player/topic/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: keyRes?.id,
+        topic: theme,
+      }),
+    });
+    console.log(res);
+  };
+
+  const GetTopic = async () => {
+    const data = await fetch(
+      `http://localhost:8080/opponent/topic?id=1&passcode=${keyRes.passcode}`
+    );
+    const res = await data.json();
+    console.log(res);
+  };
+
+  const PostAnswer = async () => {
+    const res = await fetch("http://localhost:8080/player/topic/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: keyRes?.id,
+        passcode: keyRes?.passcode,
+        answer: answer,
+      }),
+    });
+    console.log(res);
+  };
+
+  const GetGPTsAnswer = async () => {
+    const data = await fetch(`http://localhost:8080/answers?id=${keyRes.id}`);
+    const res = await data.json();
+    console.log(res);
   };
 
   const handleStart = () => {
     if (keyword.trim() !== "") {
-
       setGameState("matching");
 
-      Postkeyword();
+      PostKeyword();
 
       setTimeout(() => {
         setGameState("themeInput");
