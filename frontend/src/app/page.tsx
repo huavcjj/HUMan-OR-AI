@@ -9,6 +9,7 @@ import { Label } from "./components/ui/label";
 
 export default function Home() {
   const [keyword, setKeyword] = useState("");
+  const [keyRes, setKeyRes] = useState({ id: 0, passcode: "abc" });
   const [theme, setTheme] = useState("");
   const [userTheme, setUserTheme] = useState("");
   const [answer, setAnswer] = useState("");
@@ -39,25 +40,90 @@ export default function Home() {
     isCorrect: false,
   });
 
-  const Postkeyword = async () => {
-    const res = await fetch("http://localhost:8080/game/start", {
+
+  const [resKeyword, setResKeyWord] = useState<any>({});
+
+  const PostKeyword = async () => {
+    try {
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Timeout")), 20000)
+      );
+      const fetchPromise = await fetch("http://localhost:8080/game/start", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ passcode: keyword }),
+      });
+
+      const res = await Promise.race([fetchPromise, timeoutPromise]);
+      const data = await res.json();
+      setKeyRes(data);
+      if (data && data.id) {
+        setGameState("themeInput");
+      } else {
+        setError("マッチングに失敗しました。もう一度お試しください。");
+        setGameState("input");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setError("マッチングに失敗しました。もう一度お試しください。");
+      setGameState("input");
+    }
+    console.log(data);
+  };
+
+  const PostTheme = async () => {
+    const res = await fetch("http://localhost:8080/player/topic", {
+
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ passcode: keyword }),
+      body: JSON.stringify({
+        id: keyRes?.id,
+        topic: theme,
+      }),
     });
+    console.log(res);
+  };
+
+
+  const GetTopic = async () => {
+    const data = await fetch(
+      `http://localhost:8080/opponent/topic?id=1&passcode=${keyRes.passcode}`
+    );
+    const res = await data.json();
+    console.log(res);
+  };
+
+  const PostAnswer = async () => {
+    const res = await fetch("http://localhost:8080/player/topic/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: keyRes?.id,
+        passcode: keyRes?.passcode,
+        answer: answer,
+      }),
+    });
+    console.log(res);
+  };
+
+
+  const GetGPTsAnswer = async () => {
+    const data = await fetch(`http://localhost:8080/answers?id=${keyRes.id}`);
+    const res = await data.json();
+    console.log(res);
   };
 
   const handleStart = () => {
     if (keyword.trim() !== "") {
       setGameState("matching");
-
-      Postkeyword();
-
-      setTimeout(() => {
-        setGameState("themeInput");
-      }, 6000);
+      setError(null);
+      PostKeyword();
     }
   };
 
@@ -189,6 +255,9 @@ export default function Home() {
                   あいことば: {keyword}
                 </div>
               </div>
+            )}
+            {error && (
+              <div className="text-red-500 font-bold mt-4">{error}</div>
             )}
             {gameState === "themeInput" && (
               <div className="flex flex-col items-center space-y-4 w-full max-w-xs">
@@ -354,6 +423,7 @@ export default function Home() {
                     setUserTheme("");
                     setAnswer("");
                     setSelectedAnswer(null);
+                    setError(null);
                   }}
                   className="mt-4 bg-[#ffd700] hover:bg-[#ffec80] text-black font-bold py-2 px-4 rounded"
                 >
