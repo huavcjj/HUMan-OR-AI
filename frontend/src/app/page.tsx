@@ -44,7 +44,7 @@ export default function Home() {
  
   const handleStart = () => {
     if (keyword.trim() !== "") {
-      // Postkeyword();
+      Postkeyword();
       setIsMatching(true);
       setTimeout(() => {
         Postkeyword();
