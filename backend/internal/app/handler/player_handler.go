@@ -3,6 +3,7 @@ package handler
 import (
 	"Bot-or-Not/internal/app/dto"
 	"Bot-or-Not/internal/app/service"
+	"errors"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -37,7 +38,7 @@ func (ph *playerHandler) StartNewGame(c echo.Context) error {
 	}
 
 	if passcodeReq.Passcode == "" {
-		return c.JSON(http.StatusBadRequest, "合言葉を入力してください")
+		return c.JSON(http.StatusBadRequest, errors.New("合言葉を入力してください"))
 	}
 
 	player := dto.NewPlayer(passcodeReq.Passcode)
@@ -58,7 +59,7 @@ func (ph *playerHandler) StartNewGame(c echo.Context) error {
 		if err := ph.ps.DeletePlayerByID(c.Request().Context(), newPlayer.ID); err != nil {
 			return c.JSON(http.StatusInternalServerError, err)
 		}
-		return c.JSON(http.StatusNotFound, "対戦相手が見つかりませんでした")
+		return c.JSON(http.StatusNotFound, errors.New("対戦相手が見つかりませんでした"))
 	}
 
 	passcodeResp := dto.PasscodeResp{
@@ -82,7 +83,7 @@ func (ph *playerHandler) SubmitPlayerTopic(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, "お題を提出しました")
+	return c.NoContent(http.StatusOK)
 }
 
 func (ph *playerHandler) FetchOpponentTopic(c echo.Context) error {
@@ -129,7 +130,7 @@ func (ph *playerHandler) SubmitAnswerToOpponent(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, "回答を提出しました")
+	return c.NoContent(http.StatusOK)
 }
 func (ph *playerHandler) FetchAnswersForComparison(c echo.Context) error {
 	idStr := c.QueryParam("id")
@@ -219,5 +220,5 @@ func (ph *playerHandler) EndGame(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err)
 
 	}
-	return c.JSON(http.StatusOK, "ゲームを終了しました")
+	return c.NoContent(http.StatusOK)
 }
