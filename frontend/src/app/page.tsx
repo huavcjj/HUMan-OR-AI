@@ -40,10 +40,10 @@ export default function Home() {
   });
 
   const Postkeyword = async () => {
-    const res = await fetch("POST http://localhost:8080/game/start", {
+    const res = await fetch("http://localhost:8080/game/start", {
       method: "POST",
       headers: {
-        "Content-Type": "apllication/json",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ passcode: keyword }),
     });
@@ -51,7 +51,6 @@ export default function Home() {
 
   const handleStart = () => {
     if (keyword.trim() !== "") {
-
       setGameState("matching");
 
       Postkeyword();
