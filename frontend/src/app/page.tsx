@@ -15,6 +15,9 @@ export default function Home() {
   const [isGptThinking, setIsGptThinking] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
   const [isTimeUp, setIsTimeUp] = useState(false);
+  const [res,setRes] = useState({
+
+  })
 
   const Postkeyword = async()=>{
     const res = await fetch('POST http://localhost:8080/game/start',{
@@ -24,8 +27,19 @@ export default function Home() {
       },
       body:JSON.stringify({"passcode":keyword})
     });
-
+    const response = res.json();
+    console.log(response)
   }
+
+  const PostTheme = async()=>{
+    const res = await fetch('POST http://localhost:8080/game/start',{
+      method:'POST',
+      headers:{
+        'Content-Type':'apllication/json',
+      },
+      body:JSON.stringify({"passcode":keyword})
+    });
+  } 
  
   const handleStart = () => {
     if (keyword.trim() !== "") {
