@@ -40,6 +40,7 @@ export default function Home() {
     isCorrect: false,
   });
 
+
   const [resKeyword, setResKeyWord] = useState<any>({});
 
   const PostKeyword = async () => {
@@ -74,6 +75,7 @@ export default function Home() {
 
   const PostTheme = async () => {
     const res = await fetch("http://localhost:8080/player/topic", {
+
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -85,6 +87,7 @@ export default function Home() {
     });
     console.log(res);
   };
+
 
   const GetTopic = async () => {
     const data = await fetch(
@@ -108,6 +111,7 @@ export default function Home() {
     });
     console.log(res);
   };
+
 
   const GetGPTsAnswer = async () => {
     const data = await fetch(`http://localhost:8080/answers?id=${keyRes.id}`);

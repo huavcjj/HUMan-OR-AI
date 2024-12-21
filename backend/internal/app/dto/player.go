@@ -5,11 +5,12 @@ import (
 )
 
 type Player struct {
-	ID             uint   `json:"id"`
-	Passcode       string `json:"passcode"`
-	Topic          string `json:"topic"`
-	AIAnswer       string `json:"ai_answer"`
-	OpponentAnswer string `json:"opponent_answer"`
+	ID                   uint   `json:"id"`
+	Passcode             string `json:"passcode"`
+	Topic                string `json:"topic"`
+	AIAnswer             string `json:"ai_answer"`
+	OpponentAnswer       string `json:"opponent_answer"`
+	SelectAnswerIsPlayer bool   `json:"is_player"`
 }
 
 type PasscodeReq struct {
@@ -34,6 +35,13 @@ type AnswerIsPlayerReq struct {
 
 type IDReq struct {
 	ID uint `json:"id"`
+}
+
+type OpponentAnswerIsPlayerResp struct {
+	Topic    string `json:"topic"`
+	Anser    string `json:"answer"`
+	AIAnswer string `json:"ai_answer"`
+	IsPlayer bool   `json:"is_player"`
 }
 
 type AnswersResp struct {
@@ -64,20 +72,22 @@ func NewTopic(topic string) *Player {
 
 func NewPlayerFromEntity(player *entity.Player) *Player {
 	return &Player{
-		ID:             player.ID,
-		Passcode:       player.Passcode,
-		Topic:          player.Topic,
-		AIAnswer:       player.AIAnswer,
-		OpponentAnswer: player.OpponentAnswer,
+		ID:                   player.ID,
+		Passcode:             player.Passcode,
+		Topic:                player.Topic,
+		AIAnswer:             player.AIAnswer,
+		OpponentAnswer:       player.OpponentAnswer,
+		SelectAnswerIsPlayer: player.SelectAnswerIsPlayer,
 	}
 }
 
 func (p *Player) ToEntity() *entity.Player {
 	return &entity.Player{
-		ID:             p.ID,
-		Passcode:       p.Passcode,
-		Topic:          p.Topic,
-		AIAnswer:       p.AIAnswer,
-		OpponentAnswer: p.OpponentAnswer,
+		ID:                   p.ID,
+		Passcode:             p.Passcode,
+		Topic:                p.Topic,
+		AIAnswer:             p.AIAnswer,
+		OpponentAnswer:       p.OpponentAnswer,
+		SelectAnswerIsPlayer: p.SelectAnswerIsPlayer,
 	}
 }

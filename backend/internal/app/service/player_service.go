@@ -14,6 +14,7 @@ type IPlayerService interface {
 	FindAvailableOpponentByPasscode(ctx context.Context, id uint, passcode string) (*dto.Player, error)
 	UpdateTopicAndAIAnswer(ctx context.Context, id uint, topic string) (*dto.Player, error)
 	UpdateOpponentAnswer(ctx context.Context, id uint, opponentAnswer string) (*dto.Player, error)
+	UpdateSelectAnswerIsPlayer(ctx context.Context, id uint, selectAnswerIsPlayer bool) (*dto.Player, error)
 	DeletePlayerByID(ctx context.Context, id uint) error
 }
 
@@ -83,6 +84,20 @@ func (ps *playerService) UpdateOpponentAnswer(ctx context.Context, id uint, oppo
 		return nil, err
 	}
 	player.OpponentAnswer = opponentAnswer
+
+	updatedPlayer, err := ps.pr.UpdatePlayer(ctx, player)
+	if err != nil {
+		return nil, err
+	}
+	return dto.NewPlayerFromEntity(updatedPlayer), nil
+}
+
+func (ps *playerService) UpdateSelectAnswerIsPlayer(ctx context.Context, id uint, selectAnswerIsPlayer bool) (*dto.Player, error) {
+	player, err := ps.pr.GetPlayerByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	player.SelectAnswerIsPlayer = selectAnswerIsPlayer
 
 	updatedPlayer, err := ps.pr.UpdatePlayer(ctx, player)
 	if err != nil {

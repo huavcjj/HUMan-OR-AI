@@ -17,8 +17,9 @@ type IPlayerHandler interface {
 	FetchOpponentTopic(c echo.Context) error        // 相手のお題を取得する
 	SubmitAnswerToOpponent(c echo.Context) error    // 相手のお題に対する回答を提出する
 	FetchAnswersForComparison(c echo.Context) error // AIの回答と相手の回答を取得する
-	CompareAnswerIsPlayer(c echo.Context) error     // 送信した回答がAIか人間かを判定する
-	EndGame(c echo.Context) error
+	CompareAnswerIsPlayer(c echo.Context) error     // 選択した回答がAIか人間かを判定する
+	IsOpponentAnswerByPlayer(c echo.Context) error  // 相手が選択した回答がAIか人間かの情報を取得する
+	EndGame(c echo.Context) error                   // ゲームを終了する
 }
 
 type playerHandler struct {
@@ -162,9 +163,49 @@ func (ph *playerHandler) CompareAnswerIsPlayer(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 	if opponentPlayer.OpponentAnswer == selectAnswer {
-		return c.JSON(http.StatusOK, "正解です")
+		if _, err := ph.ps.UpdateSelectAnswerIsPlayer(c.Request().Context(), opponentPlayer.ID, true); err != nil {
+			return c.JSON(http.StatusInternalServerError, err)
+		}
+		return c.JSON(http.StatusOK, true)
 	}
-	return c.JSON(http.StatusOK, "不正解です")
+	if _, err := ph.ps.UpdateSelectAnswerIsPlayer(c.Request().Context(), opponentPlayer.ID, false); err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, false)
+}
+
+func (ph *playerHandler) IsOpponentAnswerByPlayer(c echo.Context) error {
+	idStr := c.QueryParam("id")
+	passcode := c.QueryParam("passcode")
+
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	player, err := ph.ps.GetPlayerByID(c.Request().Context(), uint(id))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+
+	decodedPasscode, err := url.QueryUnescape(passcode)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	opponentPlayer, err := ph.ps.FindAvailableOpponentByPasscode(c.Request().Context(), uint(id), decodedPasscode)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+
+	pponentAnswerIsPlayerResp := dto.OpponentAnswerIsPlayerResp{
+		Topic:    player.Topic,
+		Anser:    player.OpponentAnswer,
+		AIAnswer: player.AIAnswer,
+		IsPlayer: opponentPlayer.SelectAnswerIsPlayer,
+	}
+	return c.JSON(http.StatusOK, pponentAnswerIsPlayerResp)
+
 }
 
 func (ph *playerHandler) EndGame(c echo.Context) error {
