@@ -20,7 +20,7 @@ func TestGenerateAIAnswer(t *testing.T) {
 		t.Fatal("OPENAI_API_KEY not set")
 	}
 	//ここでお題を変えられる
-	topic := "学校が急に休みになった！なぜ？？"
+	topic := "やばい！今日提出の課題をわすれていた！どうやって言い訳する？"
 	oai := NewOpenAI(apiKey)
 	answer, err := oai.GenerateAIAnswer(context.Background(), topic)
 	if err != nil {

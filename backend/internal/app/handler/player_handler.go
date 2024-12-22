@@ -143,6 +143,8 @@ func (ph *playerHandler) FetchAnswersForComparison(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
+	time.Sleep(5 * time.Second)
+
 	newPlayer, err := ph.ps.GetPlayerByID(c.Request().Context(), uint(id))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)

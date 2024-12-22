@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef,useEffect } from "react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { Textarea } from "./components/ui/textarea";
@@ -42,15 +42,35 @@ export default function Home() {
     selectedAnswer: "",
     isCorrect: false,
   });
+
+
+  const [resTheme,setResTheme] = useState({
+    "topic": "topic",
+  })
+
+  const [resAnswer,setResAnswer] = useState({
+    "ai_answer": "GPTで生成した回答",
+    "opponent_answer": "相手の回答"
+  })
+
+  const [otherSideinfo,setOtherSideInfo] = useState({
+    topic:"相手が出したお題",
+    answer:"自分の回答",
+    ai_answer:"GPTの回答",
+    is_player:true,
+  })
+
+  const audioRef = useRef(null);
+
   const [resKeyword, setResKeyWord] = useState<any>({});
 
   const PostKeyword = async () => {
-    const router = useRouter();
+    
     try {
-      const timeoutPromise = new Promise((_, reject) =>
+      const timeoutPromise = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error("Timeout")), 20000)
       );
-      const fetchPromise = await fetch("http://localhost:8080/game/start", {
+      const fetchPromise:Promise<Response> = fetch("http://localhost:8080/game/start", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -58,8 +78,8 @@ export default function Home() {
         body: JSON.stringify({ passcode: keyword }),
       });
 
-      const res = await Promise.race([fetchPromise, timeoutPromise]);
-      const data = await res.json();
+      const res:Response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
+      const data= await res.json();
       setKeyRes(data);
       if (data && data.id) {
         setGameState("themeInput");
@@ -68,12 +88,16 @@ export default function Home() {
         setGameState("input");
         router.push("/notfound")
       }
+
+      console.log(data);
     } catch (error) {
       console.error("Error:", error);
       setError("マッチングに失敗しました。もう一度お試しください。");
       setGameState("input");
     }
+
     console.log();
+
   };
 
   const PostTheme = async () => {
@@ -84,10 +108,11 @@ export default function Home() {
       },
       body: JSON.stringify({
         id: keyRes?.id,
-        topic: theme,
+        topic: userTheme,
       }),
     });
-    console.log(res);
+    console.log("以下のテーマをPOSTしました");
+    console.log(userTheme);
   };
 
   const GetTopic = async () => {
@@ -95,7 +120,14 @@ export default function Home() {
       `http://localhost:8080/opponent/topic?id=1&passcode=${keyRes.passcode}`
     );
     const res = await data.json();
-    console.log(res);
+
+    setResTheme(res);
+    console.log("以下のidでGetTopicしました。")
+    console.log(keyRes.id);
+    console.log("以下のpasscodeでGetTopicしました。")
+    console.log(keyRes.passcode);
+    console.log(res)
+
   };
 
   const PostAnswer = async () => {
@@ -116,6 +148,34 @@ export default function Home() {
   const GetGPTsAnswer = async () => {
     const data = await fetch(`http://localhost:8080/answers?id=${keyRes.id}`);
     const res = await data.json();
+
+    setResAnswer(res);
+  }
+
+  const PostMyAnawer = async(answer:any)=>{
+    const res = await fetch("http://localhost:8080/answer/is-player", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        "id":keyRes.id,
+        "selected_answr":answer
+      }),
+    });
+    const data = await res.json();
+    const judge:boolean = data.judge;
+    setUserResult({
+      selectedAnswer:`${answer}`,
+      isCorrect:judge,
+    })
+  }
+
+  const GetotherSideInfo = async()=>{
+    const data = await fetch(`http://localhost:8080/opponent/answer/is-player?id=${keyRes.passcode}&passcode=${keyRes.passcode}`) 
+    const res = await data.json();
+    setOtherSideInfo(res);
+
     console.log(res);
   };
 
@@ -124,6 +184,9 @@ export default function Home() {
       setGameState("matching");
       setError(null);
       PostKeyword();
+
+      //GetTopic();
+
     }
   };
 
@@ -131,11 +194,14 @@ export default function Home() {
     if (userTheme.trim() !== "") {
       setGameState("loading");
       setTimeout(() => {
-        setTheme(userTheme);
+        //setTheme(userTheme);
+        setUserTheme(userTheme);
         setGameState("answering");
         setTimeLeft(60);
-      }, 3000);
+        GetTopic();
+      }, 5000);
     }
+
   };
 
   const handleSubmit = () => {
@@ -198,7 +264,9 @@ export default function Home() {
       >
         {/* 中央エリア */}
         <div className="w-full h-full flex flex-col items-center justify-center relative">
-          {/* 背景の模様 */}
+      
+
+
 
           {/* 各画面タイトル（中央エリアの内側、コンテンツエリアの外側） */}
           {gameState === "input" && (
@@ -243,10 +311,11 @@ export default function Home() {
               <div className="text-[#ffd700] text-3xl font-bold mb-4">
                 人間の回答はどちら？
               </div>
+
               <div className="bg-white/90 border-2 border-[#ffd700] rounded p-4 w-full mb-4">
-                <h2 className="text-2xl font-bold mb-2">お題:</h2>
-                <p className="text-xl">{theme}</p>
-              </div>
+                  <h2 className="text-2xl font-bold mb-2">お題:{resTheme.topic ? resTheme.topic : "課題の提出をわすれていた！なぜ？"}</h2>
+                  <p className="text-xl">{theme}</p>
+                </div>
             </div>
           )}
           {gameState === "results" && (
@@ -283,6 +352,7 @@ export default function Home() {
                     onChange={(e) => setKeyword(e.target.value)}
                     className="bg-white/90 border-2 border-[#ffd700] text-black text-center"
                     placeholder="あいことばを入力"
+
                   />
                   <Button
                     onClick={handleStart}
@@ -303,6 +373,9 @@ export default function Home() {
                     あいことば: {keyword}
                   </div>
                 </div>
+
+               
+
               )}
               {gameState === "themeInput" && (
                 <div className="flex flex-col items-center space-y-4 w-full max-w-xs">
@@ -321,6 +394,7 @@ export default function Home() {
                   >
                     お題を送信
                   </Button>
+
                 </div>
               )}
               {gameState === "loading" && (
