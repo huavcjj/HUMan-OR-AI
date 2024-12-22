@@ -40,6 +40,22 @@ export default function Home() {
     isCorrect: false,
   });
 
+  const [resTheme,setResTheme] = useState({
+    "topic":"theme",
+  })
+
+  const [resAnswer,setResAnswer] = useState({
+    "ai_answer": "GPTで生成した回答",
+    "opponent_answer": "相手の回答"
+  })
+
+  const [otherSideinfo,setOtherSideInfo] = useState({
+    topic:"相手が出したお題",
+    answer:"自分の回答",
+    ai_answer:"GPTの回答",
+    is_player:true,
+  })
+
 
   const [resKeyword, setResKeyWord] = useState<any>({});
 
@@ -88,13 +104,12 @@ export default function Home() {
     console.log(res);
   };
 
-
   const GetTopic = async () => {
     const data = await fetch(
-      `http://localhost:8080/opponent/topic?id=1&passcode=${keyRes.passcode}`
+      `http://localhost:8080/opponent/topic?id=${keyRes.id}&passcode=${keyRes.passcode}`
     );
     const res = await data.json();
-    console.log(res);
+    setResTheme(res);
   };
 
   const PostAnswer = async () => {
@@ -112,23 +127,59 @@ export default function Home() {
     console.log(res);
   };
 
-
-  const GetGPTsAnswer = async () => {
-    const data = await fetch(`http://localhost:8080/answers?id=${keyRes.id}`);
+  const GetAnswers = async()=>{
+    const data = await fetch(` http://localhost:8080/answers?id=${keyRes.id}`);
     const res = await data.json();
-    console.log(res);
-  };
+    setResAnswer(res);
+  }
 
+  const PostMyAnawer = async(answer:any)=>{
+    const res = await fetch("http://localhost:8080/answer/is-player", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        "id":keyRes.id,
+        "selected_answr":answer
+      }),
+    });
+    const judge:boolean = res.json();
+    setUserResult({
+      selectedAnswer:`${answer}`,
+      isCorrect:judge,
+    })
+  }
+
+  const GetotherSideInfo = async()=>{
+    const data = await fetch(`http://localhost:8080/opponent/answer/is-player?id=${keyRes.passcode}`) 
+    const res = await data.json();
+    setOtherSideInfo(res);
+    console.log(res);
+  }
+  
+  const endGame = async()=>{
+    const res = await fetch('DELETE http://localhost:8080/game/end',{
+      method:'DELETE',
+      headers:{
+        'Content-Type':'application/json',
+      },
+      body:JSON.stringify({"id":keyRes.id})
+    })
+    console.log(res);
+  }
   const handleStart = () => {
     if (keyword.trim() !== "") {
       setGameState("matching");
       setError(null);
       PostKeyword();
+      GetTopic();
     }
   };
 
   const handleThemeSubmit = () => {
     if (userTheme.trim() !== "") {
+      PostTheme();
       setGameState("loading");
       setTimeout(() => {
         setTheme(userTheme);
@@ -140,6 +191,8 @@ export default function Home() {
 
   const handleSubmit = () => {
     if (answer.trim() !== "" && gameState === "answering") {
+      PostAnswer();
+      GetAnswers();
       setGameState("submitting");
       setTimeout(() => {
         console.log("回答が提出されました:", answer);
@@ -152,21 +205,50 @@ export default function Home() {
   };
 
   const handleJudgment = () => {
+    GetotherSideInfo();
+    // selectedには自分が選んだ回答の文字列
+    // if(selected===resAnswer.opponent_answer){
+    //   setUserResult({
+    //     selectedAnswer:selected,
+    //     isCorrect:true
+    //   })
+    // }else{
+    //   setUserResult({
+    //     selectedAnswer:selected,
+    //     isCorrect:false
+    //   })
+    // }
+
+    selectedAnswer==="ai"?PostMyAnawer(resAnswer.ai_answer):PostMyAnawer(resAnswer.opponent_answer)
+    
+    if(otherSideinfo.is_player){
+      setOpponentResult({
+        selectedAnswer: Math.random() < 0.5 ? "A" : "B",
+        isCorrect: true,
+      });
+    }else{
+      setOpponentResult({
+        selectedAnswer: Math.random() < 0.5 ? "A" : "B",
+        isCorrect: false,
+      });
+    }
+
     if (selectedAnswer) {
       console.log("選択された回答:", selectedAnswer);
       // Simulate results
-      const userIsCorrect = Math.random() < 0.5;
-      const opponentIsCorrect = Math.random() < 0.5;
-      setUserResult({
-        selectedAnswer: selectedAnswer === "ai" ? "A" : "B",
-        isCorrect: userIsCorrect,
-      });
-      setOpponentResult({
-        selectedAnswer: Math.random() < 0.5 ? "A" : "B",
-        isCorrect: opponentIsCorrect,
-      });
+      // const userIsCorrect = Math.random() < 0.5;
+      // const opponentIsCorrect = Math.random() < 0.5;
+      // setUserResult({
+      //   selectedAnswer: selectedAnswer === "ai" ? "A" : "B",
+      //   isCorrect: userIsCorrect,
+      // });
+      // setOpponentResult({
+      //   selectedAnswer: Math.random() < 0.5 ? "A" : "B",
+      //   isCorrect: opponentIsCorrect,
+      // });
       setGameState("results");
     }
+    endGame();
   };
 
   useEffect(() => {
@@ -302,7 +384,7 @@ export default function Home() {
                 </div>
                 <div className="bg-white/90 border-2 border-[#ffd700] rounded p-4 w-full">
                   <h2 className="text-2xl font-bold mb-2">お題:</h2>
-                  <p className="text-xl">{theme}</p>
+                  <p className="text-xl">{resTheme.topic}</p>
                 </div>
                 <div className="w-full">
                   <h3 className="text-[#ffd700] text-xl font-bold mb-2">
@@ -338,7 +420,7 @@ export default function Home() {
                   人間の回答はどちら？
                 </div>
                 <div className="bg-white/90 border-2 border-[#ffd700] rounded p-4 w-full mb-4">
-                  <h2 className="text-2xl font-bold mb-2">お題:</h2>
+                  <h2 className="text-2xl font-bold mb-2">お題:{resTheme.topic}</h2>
                   <p className="text-xl">{theme}</p>
                 </div>
                 <RadioGroup
@@ -351,13 +433,13 @@ export default function Home() {
                   <div className="flex items-center space-x-2 bg-white/90 p-4 rounded">
                     <RadioGroupItem value="ai" id="ai" />
                     <Label htmlFor="ai" className="text-black">
-                      回答A: {aiAnswer}
+                      回答A: {resAnswer.ai_answer}
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2 bg-white/90 p-4 rounded">
                     <RadioGroupItem value="opponent" id="opponent" />
                     <Label htmlFor="opponent" className="text-black">
-                      回答B: {opponentAnswer}
+                      回答B: {resAnswer.opponent_answer}
                     </Label>
                   </div>
                 </RadioGroup>
