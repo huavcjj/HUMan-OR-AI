@@ -1,9 +1,9 @@
 # HUMan OR AI
 ハッカソン技育CAMP2024 Vol.19
 
-発表スライド： https://docs.google.com/presentation/d/1Kywy_Jzy-XLVUDBIwsPYSnT6Sq7EmecSucU0_fmEJGk/edit?usp=sharing
+[発表スライド](https://docs.google.com/presentation/d/1Kywy_Jzy-XLVUDBIwsPYSnT6Sq7EmecSucU0_fmEJGk/edit?usp=sharing)
 
-デモ映像：https://youtu.be/DF7pgwGcfis
+[デモ映像](https://youtu.be/DF7pgwGcfis)
 
 ## アプリ概要
 プレイヤーが同じ合言葉を入力してマッチングに成功すると、お互いに大喜利のお題を出し合います。その後、各自が回答をし、AIの回答と相手の回答が提示されます。プレイヤーは、どちらが人間の回答かを選んで当てる対戦ゲームです。
