@@ -105,7 +105,7 @@ func (ph *playerHandler) FetchOpponentTopic(c echo.Context) error {
 
 	opponentPlayer, err := ph.ps.FindAvailableOpponentByPasscode(c.Request().Context(), uint(id), decodedPasscode)
 	if opponentPlayer == nil || err != nil {
-		return c.JSON(http.StatusOK, err)
+		return c.JSON(http.StatusNoContent, err)
 	}
 
 	topicResp := dto.TopicResp{
