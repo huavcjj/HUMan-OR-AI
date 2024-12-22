@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef,useEffect } from "react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { Textarea } from "./components/ui/textarea";
@@ -41,7 +41,7 @@ export default function Home() {
   });
 
   const [resTheme,setResTheme] = useState({
-    "topic":"theme",
+    "topic": "topic",
   })
 
   const [resAnswer,setResAnswer] = useState({
@@ -56,15 +56,15 @@ export default function Home() {
     is_player:true,
   })
 
-
+  const audioRef = useRef(null);
   const [resKeyword, setResKeyWord] = useState<any>({});
 
   const PostKeyword = async () => {
     try {
-      const timeoutPromise = new Promise((_, reject) =>
+      const timeoutPromise = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error("Timeout")), 20000)
       );
-      const fetchPromise = await fetch("http://localhost:8080/game/start", {
+      const fetchPromise:Promise<Response> = fetch("http://localhost:8080/game/start", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -72,8 +72,8 @@ export default function Home() {
         body: JSON.stringify({ passcode: keyword }),
       });
 
-      const res = await Promise.race([fetchPromise, timeoutPromise]);
-      const data = await res.json();
+      const res:Response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
+      const data= await res.json();
       setKeyRes(data);
       if (data && data.id) {
         setGameState("themeInput");
@@ -81,12 +81,14 @@ export default function Home() {
         setError("マッチングに失敗しました。もう一度お試しください。");
         setGameState("input");
       }
+
+      console.log(data);
     } catch (error) {
       console.error("Error:", error);
       setError("マッチングに失敗しました。もう一度お試しください。");
       setGameState("input");
     }
-    console.log(data);
+    
   };
 
   const PostTheme = async () => {
@@ -98,10 +100,11 @@ export default function Home() {
       },
       body: JSON.stringify({
         id: keyRes?.id,
-        topic: theme,
+        topic: userTheme,
       }),
     });
-    console.log(res);
+    console.log("以下のテーマをPOSTしました");
+    console.log(userTheme);
   };
 
   const GetTopic = async () => {
@@ -110,6 +113,11 @@ export default function Home() {
     );
     const res = await data.json();
     setResTheme(res);
+    console.log("以下のidでGetTopicしました。")
+    console.log(keyRes.id);
+    console.log("以下のpasscodeでGetTopicしました。")
+    console.log(keyRes.passcode);
+    console.log(res)
   };
 
   const PostAnswer = async () => {
@@ -144,7 +152,8 @@ export default function Home() {
         "selected_answr":answer
       }),
     });
-    const judge:boolean = res.json();
+    const data = await res.json();
+    const judge:boolean = data.judge;
     setUserResult({
       selectedAnswer:`${answer}`,
       isCorrect:judge,
@@ -173,7 +182,7 @@ export default function Home() {
       setGameState("matching");
       setError(null);
       PostKeyword();
-      GetTopic();
+      //GetTopic();
     }
   };
 
@@ -182,11 +191,14 @@ export default function Home() {
       PostTheme();
       setGameState("loading");
       setTimeout(() => {
-        setTheme(userTheme);
+        //setTheme(userTheme);
+        setUserTheme(userTheme);
         setGameState("answering");
         setTimeLeft(60);
-      }, 3000);
+        GetTopic();
+      }, 5000);
     }
+
   };
 
   const handleSubmit = () => {
@@ -299,6 +311,8 @@ export default function Home() {
               backgroundSize: "120px 120px",
             }}
           ></div>
+          {/*Audio Element*/}
+          {/* <audio ref={audioRef} src="./audio/background.mp3" loop /> */}
 
           {/* コンテンツエリア */}
           <div className="bg-[#cc0000] border-4 border-[#ffd700] rounded-lg p-8 space-y-4 relative z-10 w-5/6 max-w-2xl">
@@ -383,8 +397,8 @@ export default function Home() {
                   {timeLeft}秒
                 </div>
                 <div className="bg-white/90 border-2 border-[#ffd700] rounded p-4 w-full">
-                  <h2 className="text-2xl font-bold mb-2">お題:{resTheme.topic}</h2>
-                  <p className="text-xl">{resTheme.topic}</p>
+                  <h2 className="text-2xl font-bold mb-2">お題:{resTheme.topic ? resTheme.topic : "課題の提出をわすれていた！なぜ？"}</h2>
+                  {/* <p className="text-xl">{resTheme ? resTheme.topic : "お題が読み込まれていません"}</p> */}
                 </div>
                 <div className="w-full">
                   <h3 className="text-[#ffd700] text-xl font-bold mb-2">
@@ -420,7 +434,7 @@ export default function Home() {
                   人間の回答はどちら？
                 </div>
                 <div className="bg-white/90 border-2 border-[#ffd700] rounded p-4 w-full mb-4">
-                  <h2 className="text-2xl font-bold mb-2">お題:{resTheme.topic}</h2>
+                  <h2 className="text-2xl font-bold mb-2">お題:{resTheme.topic ? resTheme.topic : "課題の提出をわすれていた！なぜ？"}</h2>
                   <p className="text-xl">{theme}</p>
                 </div>
                 <RadioGroup
