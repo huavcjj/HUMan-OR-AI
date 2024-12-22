@@ -113,7 +113,7 @@ export default function Home() {
   };
 
   const PostAnswer = async () => {
-    const res = await fetch("http://localhost:8080/player/topic/", {
+    const res = await fetch("http://localhost:8080/opponent/answer", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -152,14 +152,14 @@ export default function Home() {
   }
 
   const GetotherSideInfo = async()=>{
-    const data = await fetch(`http://localhost:8080/opponent/answer/is-player?id=${keyRes.passcode}`) 
+    const data = await fetch(`http://localhost:8080/opponent/answer/is-player?id=${keyRes.passcode}&passcode=${keyRes.passcode}`) 
     const res = await data.json();
     setOtherSideInfo(res);
     console.log(res);
   }
   
   const endGame = async()=>{
-    const res = await fetch('DELETE http://localhost:8080/game/end',{
+    const res = await fetch('http://localhost:8080/game/end',{
       method:'DELETE',
       headers:{
         'Content-Type':'application/json',
