@@ -1,6 +1,6 @@
 # HUMan OR AI
-
 ハッカソン技育CAMP2024 Vol.19
+
 <img width="322" alt="logo5" src="https://github.com/user-attachments/assets/e5a1caca-53af-4b18-a4f9-773bd68955c9" />
 
 [発表スライド](https://docs.google.com/presentation/d/1Kywy_Jzy-XLVUDBIwsPYSnT6Sq7EmecSucU0_fmEJGk/edit?usp=sharing)
