@@ -7,6 +7,8 @@ import { Textarea } from "./components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "./components/ui/radio-group";
 import { Label } from "./components/ui/label";
 import corkBoard from "./images/cork-board.png";
+import { useRouter } from 'next/router'
+
 
 export default function Home() {
   const [keyword, setKeyword] = useState("");
@@ -43,6 +45,7 @@ export default function Home() {
   const [resKeyword, setResKeyWord] = useState<any>({});
 
   const PostKeyword = async () => {
+    const router = useRouter();
     try {
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error("Timeout")), 20000)
@@ -63,6 +66,7 @@ export default function Home() {
       } else {
         setError("マッチングに失敗しました。もう一度お試しください。");
         setGameState("input");
+        router.push("/notfound")
       }
     } catch (error) {
       console.error("Error:", error);
