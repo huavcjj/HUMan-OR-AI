@@ -198,18 +198,18 @@ export default function Home() {
 
           {/* 各画面タイトル（中央エリアの内側、コンテンツエリアの外側） */}
           {gameState === "input" && (
-            <div className="flex flex-col items-center space-y-4 w-full max-w-xs m-8">
+            <div className="flex flex-col items-center space-y-4 w-full max-w-2xl m-8">
               <label
                 htmlFor="keyword"
                 className="text-[#143a1b] text-5xl font-bold"
               >
-                あいことば
+                あいことばでマッチング
               </label>
             </div>
           )}
 
           {gameState === "themeInput" && (
-            <div className="flex flex-col items-center space-y-4 w-full max-w-xs">
+            <div className="flex flex-col items-center space-y-4 w-full max-w-xs m-8">
               <label
                 htmlFor="theme"
                 className="text-[#ffd700] text-xl font-bold"
@@ -220,12 +220,12 @@ export default function Home() {
           )}
 
           {gameState === "answering" && (
-            <div className="flex flex-col items-center justify-center space-y-4 w-full">
+            <div className="flex flex-col items-center space-y-4 w-full max-w-xs m-8">
               <div className="text-[#ffd700] text-3xl font-bold mb-4">
-                大喜利
+                大喜利の答え
               </div>
               <div className={`text-4xl font-bold ${getTimerColor()}`}>
-                {timeLeft}秒
+                残り{timeLeft}秒
               </div>
               <div className="bg-white/90 border-2 border-[#ffd700] rounded p-4 w-full">
                 <h2 className="text-2xl font-bold mb-2">お題:</h2>
@@ -235,7 +235,7 @@ export default function Home() {
           )}
 
           {gameState === "judging" && (
-            <div className="flex flex-col items-center justify-center space-y-4 w-full">
+            <div className="flex flex-col items-center space-y-4 w-full max-w-xs m-8">
               <div className="text-[#ffd700] text-3xl font-bold mb-4">
                 人間の回答はどちら？
               </div>
@@ -246,7 +246,7 @@ export default function Home() {
             </div>
           )}
           {gameState === "results" && (
-            <div className="flex flex-col items-center justify-center space-y-4 w-full">
+            <div className="flex flex-col items-center space-y-4 w-full max-w-xs m-8">
               <div className="text-[#ffd700] text-3xl font-bold mb-4">
                 結果発表
               </div>
@@ -260,7 +260,7 @@ export default function Home() {
             </div>
           )}
           {gameState === "finished" && (
-            <div className="flex flex-col items-center justify-center space-y-4">
+            <div className="flex flex-col items-center space-y-4 w-full max-w-xs m-8">
               <div className="text-[#ffd700] text-3xl font-bold">
                 ゲーム終了！
               </div>
@@ -271,7 +271,7 @@ export default function Home() {
             {/* コンテンツ */}
             <div className="text-black text-center">
               {gameState === "input" && (
-                <div className="flex flex-col items-center space-y-4 w-full max-w-xs">
+                <div className="flex flex-col items-center space-y-8 w-full max-w-xs">
                   <Input
                     id="keyword"
                     type="text"
@@ -283,7 +283,7 @@ export default function Home() {
                   <Button
                     onClick={handleStart}
                     disabled={keyword.trim() === ""}
-                    className="bg-[#ffd700] hover:bg-[#ffec80] text-black font-bold py-2 px-4 rounded"
+                    className="bg-[#ffd700] hover:bg-[#ffec80] text-black font-bold py-6 px-6 rounded"
                   >
                     スタート
                   </Button>
