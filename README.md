@@ -1,6 +1,8 @@
 # HUMan OR AI
 ハッカソン技育CAMP2024 Vol.19
+
 発表スライド： https://docs.google.com/presentation/d/1Kywy_Jzy-XLVUDBIwsPYSnT6Sq7EmecSucU0_fmEJGk/edit?usp=sharing
+
 デモ映像：https://youtu.be/DF7pgwGcfis
 
 ## アプリ概要
