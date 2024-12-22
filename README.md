@@ -1,4 +1,4 @@
-# HUMman OR AI
+# HUMan OR AI
 ハッカソン技育CAMP2024 Vol.19
 
 ## アプリ概要
