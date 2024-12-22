@@ -383,7 +383,7 @@ export default function Home() {
                   {timeLeft}秒
                 </div>
                 <div className="bg-white/90 border-2 border-[#ffd700] rounded p-4 w-full">
-                  <h2 className="text-2xl font-bold mb-2">お題:</h2>
+                  <h2 className="text-2xl font-bold mb-2">お題:{resTheme.topic}</h2>
                   <p className="text-xl">{resTheme.topic}</p>
                 </div>
                 <div className="w-full">
