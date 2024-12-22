@@ -194,8 +194,6 @@ export default function Home() {
       >
         {/* 中央エリア */}
         <div className="w-full h-full flex flex-col items-center justify-center relative">
-          {/* 背景の模様 */}
-
           {/* 各画面タイトル（中央エリアの内側、コンテンツエリアの外側） */}
           {gameState === "input" && (
             <div className="flex flex-col items-center space-y-4 w-full max-w-2xl m-8">
@@ -203,7 +201,7 @@ export default function Home() {
                 htmlFor="keyword"
                 className="text-[#143a1b] text-5xl font-bold"
               >
-                あいことばでマッチング
+                "あいことば"でマッチング
               </label>
             </div>
           )}
