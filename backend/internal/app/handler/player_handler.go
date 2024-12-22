@@ -3,7 +3,6 @@ package handler
 import (
 	"Bot-or-Not/internal/app/dto"
 	"Bot-or-Not/internal/app/service"
-	"errors"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -38,7 +37,9 @@ func (ph *playerHandler) StartNewGame(c echo.Context) error {
 	}
 
 	if passcodeReq.Passcode == "" {
-		return c.JSON(http.StatusBadRequest, errors.New("合言葉を入力してください"))
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "合言葉を入力してください",
+		})
 	}
 
 	player := dto.NewPlayer(passcodeReq.Passcode)
@@ -59,7 +60,9 @@ func (ph *playerHandler) StartNewGame(c echo.Context) error {
 		if err := ph.ps.DeletePlayerByID(c.Request().Context(), newPlayer.ID); err != nil {
 			return c.JSON(http.StatusInternalServerError, err)
 		}
-		return c.JSON(http.StatusNotFound, errors.New("対戦相手が見つかりませんでした"))
+		return c.JSON(http.StatusNotFound, map[string]string{
+			"error": "対戦相手が見つかりませんでした",
+		})
 	}
 
 	passcodeResp := dto.PasscodeResp{
